@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Tareas
 from .forms import TareaForm
 from django.contrib.auth.decorators import login_required
@@ -38,7 +38,7 @@ def editar_tarea(request, tarea_id):
     return render(request, 'tareas/editar_tarea.html', {'form': form, 'tarea': tarea})
 
 @login_required
-def eliminar_tareas(request, tarea_id):
+def eliminar_tarea(request, tarea_id):
     tarea= get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
     if request.method == 'POST':
         tarea.delete()
