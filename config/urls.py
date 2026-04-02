@@ -19,13 +19,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-<<<<<<< HEAD
     # Esto conecta las URLs de tu aplicación 'Tareas'
     path('', include('Tareas.urls')), 
     path('categorias/', include('categorias.urls')),
-]
-=======
     path('tareas/', include('Tareas.urls')),
     path('categorias/', include('categorias.urls')),
 ]
->>>>>>> fce4a0eefaf7e7ebf328023039da22e74d3a0833

@@ -34,13 +34,7 @@ def crear_tarea(request):
             
     # Este return es VITAL: si no es POST o el formulario falla, vuelve al dashboard
     return redirect('dashboard')
-@login_required
-def editar_tarea(request, tarea_id):
-    tarea = get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
-            return redirect('lista_tareas')
-    else:
-        form = TareaForm()
-    return render(request, 'tareas/crear_tarea.html', {'form': form})
+
 
 @login_required
 def editar_tarea(request, tarea_id):
@@ -52,16 +46,6 @@ def editar_tarea(request, tarea_id):
             form.save()
     return redirect('dashboard')
 
-@login_required
-def eliminar_tarea(request, tarea_id):
-    tarea = get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
-    tarea.delete()
-    return redirect('dashboard')
-            return redirect('lista_tareas')
-    else:
-        form = TareaForm(instance=tarea)
-    
-    return render(request, 'tareas/editar_tarea.html', {'form': form, 'tarea': tarea})
 
 @login_required
 def eliminar_tarea(request, tarea_id):
