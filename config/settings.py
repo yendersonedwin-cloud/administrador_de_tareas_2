@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
 
-# Construir rutas dentro del proyecto
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Configuración de seguridad básica
+
 SECRET_KEY = 'django-insecure-d)@6ggs&&yfrk$4s1=%a*m9b1q27c0kgspei25fc24^=edi$y!'
 DEBUG = True
 ALLOWED_HOSTS = []
 
-# Aplicaciones instaladas (Aquí están las de tus amigos y la tuya)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,7 +33,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-# Configuración de Plantillas (Para que Django encuentre tus carpetas HTML)
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -53,7 +52,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Base de datos (Configurada en modo local para que no te de error de PostgreSQL)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -61,7 +60,7 @@ DATABASES = {
     }
 }
 
-# Validadores de contraseña
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -69,14 +68,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Configuración de idioma y hora
-LANGUAGE_CODE = 'es-co' # Cambiado a español
+
+LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos (CSS, Imágenes)
+
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

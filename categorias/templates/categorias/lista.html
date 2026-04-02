@@ -1,151 +1,81 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Categorías Pro | Gestor de Tareas</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'dashboard.html' %}
 
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif; /* Fuente moderna en todo el sitio */
-            background-color: #f4f7f6; /* Fondo gris muy suave y limpio */
-            color: #2d3436;
-        }
+{% block content %}
+<style>
+    /* Estilos Pro para encajar en el Dashboard */
+    .category-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+    .category-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        border-left: 8px solid; /* El color vendrá dinámicamente de la BD */
+    }
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+    .cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .cat-name {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: #2d3436;
+        margin: 0;
+    }
+    .priority-pill {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 20px;
+        color: white;
+        text-transform: uppercase;
+    }
+    .actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    .btn-edit { color: #0984e3; text-decoration: none; font-weight: 600; }
+    .btn-delete { color: #d63031; text-decoration: none; font-weight: 600; }
+</style>
 
-        .main-title {
-            font-weight: 700;
-            color: #0984e3; /* Azul profesional */
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-        }
-
-        /* Estilos de la Tarjeta Pro */
-        .category-card {
-            border: none; /* Quitamos el borde por defecto */
-            border-radius: 20px; /* Bordes muy redondeados y suaves */
-            background-color: #fff;
-            transition: all 0.3s ease-in-out; /* Animación suave para el hover */
-            overflow: hidden; /* Para que nada se salga de los bordes redondeados */
-            position: relative;
-        }
-
-        /* Efecto Hover: La tarjeta se levanta y brilla */
-        .category-card:hover {
-            transform: translateY(-10px); /* Se levanta 10px */
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Sombra más grande y suave */
-        }
-
-        /* La franja de color lateral (reemplaza la barra superior) */
-        .color-strip {
-            width: 10px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            border-radius: 20px 0 0 20px; /* Redondeamos solo el lado izquierdo */
-        }
-
-        .card-body-pro {
-            padding: 30px 30px 30px 45px; /* Más espacio interno, extra a la izquierda por la franja */
-        }
-
-        .category-name {
-            font-weight: 600;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #2d3436;
-        }
-
-        /* Estilo del Badge de Prioridad */
-        .priority-badge {
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.8rem;
-            padding: 8px 15px;
-            border-radius: 50px; /* Badge ovalado perfecto */
-            display: inline-flex;
-            align-items: center;
-            gap: 8px; /* Espacio entre el icono y el texto */
-            color: #fff;
-        }
-
-        /* Icono dinámico para el badge */
-        .priority-icon {
-            font-size: 1rem;
-        }
-
-        .btn-back {
-            background-color: #0984e3;
-            color: white;
-            font-weight: 600;
-            border-radius: 50px;
-            padding: 10px 25px;
-            border: none;
-            transition: background-color 0.3s;
-        }
-
-        .btn-back:hover {
-            background-color: #74b9ff;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <div class="container py-5">
-        <div class="row mb-5 text-center">
-            <div class="col-12">
-                <h1 class="main-title">Panel de Categorías</h1>
-                <p class="text-muted fs-5">Gestiona tus prioridades con estilo y claridad visual.</p>
-            </div>
+<div class="category-container">
+    {% for cat in categorias %}
+    <div class="category-card" style="border-left-color: {{ cat.color }};">
+        <div class="cat-header">
+            <h3 class="cat-name">{{ cat.nombre }}</h3>
+            <span class="priority-pill" style="background-color: 
+                {% if cat.prioridad == 'Alta' %}#d63031{% elif cat.prioridad == 'Media' %}#fdcb6e{% else %}#00b894{% endif %};">
+                {{ cat.get_prioridad_display }}
+            </span>
         </div>
-
-        <div class="row">
-            {% for cat in categorias %}
-            <div class="col-md-4 mb-4">
-                <div class="card category-card h-100 shadow-sm">
-                    <div class="color-strip" style="background-color: {{ cat.color }};"></div>
-                    
-                    <div class="card-body card-body-pro">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="category-name">{{ cat.nombre }}</h3>
-                            <i class="fa-solid fa-folder-open text-muted fs-4"></i>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <span class="priority-badge" style="background-color: {{ cat.get_prioridad_color }};">
-                                <i class="fa-solid fa-circle-exclamation priority-icon"></i>
-                                Prioridad: {{ cat.get_prioridad_display }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <i class="fa-solid fa-inbox text-muted fa-5x mb-4"></i>
-                <h3 class="text-muted">No has creado categorías todavía.</h3>
-                <p class="text-muted fs-5">Ve al panel de administración para empezar a organizar tus tareas.</p>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="row mt-5 text-center">
-            <div class="col-12">
-                <a href="/admin/" class="btn btn-back btn-lg shadow">
-                    <i class="fa-solid fa-arrow-left me-2"></i> Regresar al Administrador
-                </a>
-            </div>
+        
+        <div class="actions">
+            <a href="{% url 'actualizar_categoria' cat.pk %}" class="btn-edit">
+                <i class="fa-solid fa-pen"></i> Editar
+            </a>
+            <a href="{% url 'eliminar_categoria' cat.pk %}" class="btn-delete">
+                <i class="fa-solid fa-trash"></i> Eliminar
+            </a>
         </div>
     </div>
-</body>
-</html>
+    {% empty %}
+    <div style="text-align: center; width: 100%; padding: 40px;">
+        <p style="color: #636e72;">Aún no tienes categorías. ¡Empieza creando una!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
