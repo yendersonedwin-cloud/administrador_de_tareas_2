@@ -1,37 +1,41 @@
+"""
+tareas/models.py — TaskFlow
+
+Modelo principal de tareas.
+Incluye: prioridad, categoría, fecha de vencimiento, completada, timestamps.
+"""
+
 from django.db import models
 from django.contrib.auth.models import User
-from categorias.models import Categorias 
+
 
 class Tareas(models.Model):
-    
-    class Estado(models.TextChoices):
-        PENDIENTE = 'Pendiente', 'Pendiente'
-        EN_PROGRESO = 'Progreso', 'En progreso'
-        COMPLETADA = 'Completada', 'Completada'
 
-    titulo = models.CharField(max_length=200)
-    descripcion = models.TextField(blank=True, null=True)
-    estado = models.CharField(max_length=15, choices=Estado.choices, default=Estado.PENDIENTE)
-    
-    class PrioridadTarea(models.TextChoices):
-        BAJA = 'Baja', 'Baja'
-        MEDIA = 'Media', 'Media'
-        ALTA = 'Alta', 'Alta'
+    PRIORIDAD_CHOICES = [
+        ('A', 'Alta'),
+        ('M', 'Media'),
+        ('B', 'Baja'),
+    ]
 
-    titulo = models.CharField(max_length=200)
-    descripcion = models.TextField(blank=True, null=True)
-    estado = models.CharField(max_length=15, choices=Estado.choices, default=Estado.PENDIENTE)
-    
-   
-    prioridad = models.CharField(max_length=10, choices=PrioridadTarea.choices, default=PrioridadTarea.BAJA)
-    
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_limite = models.DateTimeField(null=True, blank=True)
+    usuario           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tareas')
+    titulo            = models.CharField(max_length=255)
+    descripcion       = models.TextField(blank=True, null=True)
+    prioridad         = models.CharField(max_length=1, choices=PRIORIDAD_CHOICES, default='M')
+    categoria         = models.ForeignKey(
+                            'categorias.Categorias',   # Referencia a la otra app
+                            on_delete=models.SET_NULL,
+                            null=True, blank=True,
+                            related_name='tareas'
+                        )
+    fecha_vencimiento = models.DateField(null=True, blank=True)
+    completada        = models.BooleanField(default=False)
+    creado_en         = models.DateTimeField(auto_now_add=True)
+    updated_at        = models.DateTimeField(auto_now=True)
 
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tareas')
-    
-    
-    categoria = models.ForeignKey(Categorias, on_delete=models.SET_NULL, null=True, blank=True, related_name='tareas')
+    class Meta:
+        verbose_name        = 'Tarea'
+        verbose_name_plural = 'Tareas'
+        ordering            = ['-creado_en']
 
     def __str__(self):
         return self.titulo

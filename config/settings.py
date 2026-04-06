@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'Tareas',      
     'categorias', 
     'colorfield',
+    'usuarios',
+    
 ]
 
 MIDDLEWARE = [
@@ -97,3 +99,11 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ─────────────────────────────────────────────
+# Agrega / verifica estas líneas en settings.py
+# ─────────────────────────────────────────────
+ 
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL  = '/'                  # tras login exitoso → dashboard
+LOGOUT_REDIRECT_URL = '/accounts/login/'   # tras logout → login
+ 

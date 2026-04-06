@@ -1,0 +1,153 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --teal:       #1a7a5e;
+    --teal-dark:  #155f49;
+    --teal-light: #e8f5f1;
+    --bg:         #dff0ee;
+    --card:       #ffffff;
+    --text:       #1a1a2e;
+    --muted:      #6b7280;
+    --border:     #e5e7eb;
+    --input-bg:   #f9fafb;
+    --radius:     14px;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #cce8e3 0%, #dff0f5 50%, #c8e8e0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.registro-card {
+    background: var(--card);
+    width: 100%;
+    max-width: 440px;
+    padding: 48px 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(26, 122, 94, 0.1);
+    text-align: center;
+}
+
+/* Logo igual al de login */
+.logo-icon {
+    width: 48px; height: 48px;
+    background: var(--teal);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+}
+
+h1 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.subtitle { color: var(--muted); margin-bottom: 32px; font-size: 15px; }
+
+/* Mensaje de éxito */
+.msg-success {
+    color: #1a7a5e;
+    background: #e8f5f1;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* Grupos de campo */
+.form-group {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+/* Wrapper para el input + botón de ojo */
+.pw-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Todos los inputs del form */
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    outline: none;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--teal);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--teal-light);
+}
+
+/* Botón toggle contraseña */
+.toggle-pw {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+}
+
+/* Errores del form */
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    color: #d9534f;
+    font-size: 12px;
+}
+
+/* Botón principal */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover { background: var(--teal-dark); }
+
+/* Link a login */
+.login-row {
+    margin-top: 28px;
+    font-size: 14px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+}
+
+.login-row a {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-row a:hover { text-decoration: underline; }

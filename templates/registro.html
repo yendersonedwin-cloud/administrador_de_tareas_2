@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow – Crear cuenta</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+</head>
+<body>
+    <div class="registro-card">
+        <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h1>Crea tu cuenta</h1>
+        <p class="subtitle">Empieza a gestionar tus tareas hoy</p>
+
+        {% if messages %}
+            {% for message in messages %}
+            <p class="msg-success">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="pw-wrapper">
+                    {{ field }}
+                    {% if "password" in field.name %}
+                    <button type="button"
+                        onclick="togglePw('{{ field.auto_id }}', 'eye-{{ field.auto_id }}')"
+                        class="toggle-pw" aria-label="Mostrar contraseña">
+                        <svg id="eye-{{ field.auto_id }}" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="#6b7280" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+                {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn-primary">Crear cuenta</button>
+        </form>
+
+        <p class="login-row">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
+        </p>
+    </div>
+    <script src="{% static 'js/login.js' %}"></script>
+</body>
+</html>

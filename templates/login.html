@@ -2,49 +2,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TaskFlow – Iniciar Sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow – Iniciar Sesión</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
-
-  <div class="login-card">
-    <div class="logo-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-    </div>
-    <h1>Bienvenido</h1>
-    <p class="subtitle">Gestiona tus proyectos de Systems Engineering</p>
-
-    <form method="POST">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="username">Usuario</label>
-        <input type="text" id="username" name="username" placeholder="Tu usuario" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <div class="pw-wrapper">
-          <input type="password" id="password" name="password" placeholder="••••••••" required>
-          <button type="button" class="toggle-pw" onclick="togglePw()">
-            <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+    <div class="login-card">
+        <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
-          </button>
         </div>
-      </div>
+        <h1>Bienvenido</h1>
+        <p class="subtitle">Gestiona tus tareas con TaskFlow</p>
 
-      <button type="submit" class="btn-primary">Entrar</button>
-    </form>
+        {% if messages %}
+            {% for message in messages %}
+            <p style="color:#1a7a5e;background:#e8f5f1;padding:10px;border-radius:8px;font-size:14px;margin-bottom:15px;">
+                {{ message }}
+            </p>
+            {% endfor %}
+        {% endif %}
 
-    <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
-    <p class="signup-row">
-      ¿No tienes cuenta? <a href="#">Regístrate</a>
-    </p>
-  </div>
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
 
-  <script src="{% static 'Tareas/js/login.js' %}"></script>
+            {% if form.errors %}
+            <p style="color:#d9534f;font-size:14px;margin-bottom:15px;">
+                Usuario o contraseña incorrectos.
+            </p>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Usuario</label>
+                {{ form.username }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Contraseña</label>
+                <div class="pw-wrapper" style="position:relative;display:flex;align-items:center;">
+                    {{ form.password }}
+                    <button type="button" onclick="togglePw('id_password','eye-icon')"
+                        style="position:absolute;right:10px;background:none;border:none;cursor:pointer;z-index:10;">
+                        <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+
+        <!-- URL corregida: /accounts/registro/ -->
+        <p class="signup-row">
+            ¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a>
+        </p>
+    </div>
+    <script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>
