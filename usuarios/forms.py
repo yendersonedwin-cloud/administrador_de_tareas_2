@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from .models import Perfil
  
  
 class LoginForm(AuthenticationForm):
@@ -46,3 +47,29 @@ class RegistroForm(UserCreationForm):
         self.fields['password1'].help_text = None
         self.fields['password2'].help_text = None
         self.fields['username'].help_text = None
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField(label='Correo electrónico')
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'input-profile'})
+
+# En tu forms.py
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ['imagen', 'bio']
+        widgets = {
+            # Esto es lo que falta para que aparezca el cuadro de escritura
+            'bio': forms.Textarea(attrs={
+                'rows': 3, 
+                'placeholder': 'Cuéntanos a qué te dedicas...',
+                'class': 'form-control' # Opcional si usas clases globales
+            }),
+        }

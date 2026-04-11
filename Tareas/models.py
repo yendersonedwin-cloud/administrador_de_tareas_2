@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 
 
 class Tareas(models.Model):
-
     PRIORIDAD_CHOICES = [
         ('A', 'Alta'),
         ('M', 'Media'),
