@@ -1,9 +1,17 @@
-# Tareas/admin.py
-# Categorias está en su propia app — se importa desde allí
-
 from django.contrib import admin
-from .models import Tareas
-from categorias.models import Categorias   # ← importar desde la app correcta
+from .models import Tareas, EspacioTrabajo
+from categorias.models import Categorias
 
-admin.site.register(Tareas)
+@admin.register(EspacioTrabajo)
+class EspacioTrabajoAdmin(admin.ModelAdmin):
+    
+    list_display = ('nombre', 'codigo', 'administrador')
+    search_fields = ('nombre', 'codigo')
+
+@admin.register(Tareas)
+class TareasAdmin(admin.ModelAdmin):
+    
+    list_display = ('titulo', 'usuario', 'espacio_trabajo', 'prioridad', 'completada')
+    list_filter = ('prioridad', 'completada', 'espacio_trabajo') # Filtros rápidos a la derecha
+
 admin.site.register(Categorias)

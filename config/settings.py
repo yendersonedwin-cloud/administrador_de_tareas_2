@@ -64,8 +64,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gestion_tareas',  
+        'USER': 'postgres',         
+        'PASSWORD': '123',   
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -106,4 +110,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL  = '/'                  # tras login exitoso → dashboard
 LOGOUT_REDIRECT_URL = '/accounts/login/'   # tras logout → login
- 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
