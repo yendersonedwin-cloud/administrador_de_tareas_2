@@ -12,7 +12,7 @@ urlpatterns = [
     
     # Panel admin
     path('<int:ws_id>/admin/', views.panel_admin, name='panel_admin'),
-    
+    path('eliminar/<int:ws_id>/', views.eliminar_workspace, name='eliminar_workspace'),
     path('<int:workspace_id>/kanban/', views.kanban_workspace, name='kanban_workspace'),
     
     # Acciones sobre tareas

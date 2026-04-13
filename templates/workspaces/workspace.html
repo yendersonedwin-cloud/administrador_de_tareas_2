@@ -69,6 +69,26 @@
                 </svg>
                 Dashboard
             </a>
+
+            <div class="ws-header-right">
+    {% if es_admin %}
+        <form action="{% url 'eliminar_workspace' workspace.id %}" method="POST" style="display: inline;" onsubmit="return confirmarEliminacion();">
+            {% csrf_token %}
+            <button type="submit" class="ws-btn" style="background: #ef4444; color: white; border: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                </svg>
+                Eliminar Workspace
+            </button>
+        </form>
+    {% endif %}
+    
+</div>
+
+
         </div>
     </div>
 
@@ -147,6 +167,16 @@
                     <div class="ws-task-header">
                         <span class="ws-task-title">{{ tarea.titulo }}</span>
                         <div class="ws-task-badges">
+                            <!-- Badge de estado Kanban -->
+                            <span class="ws-status-badge ws-status-{% if tarea.completada %}done{% elif tarea.en_progreso %}progreso{% else %}todo{% endif %}">
+                                {% if tarea.completada %}
+                                    ✅ Completada
+                                {% elif tarea.en_progreso %}
+                                    🔄 En progreso
+                                {% else %}
+                                    📋 Por hacer
+                                {% endif %}
+                            </span>
                             <span class="ws-priority ws-priority-{{ tarea.prioridad|lower }}">
                                 {{ tarea.get_prioridad_display }}
                             </span>
@@ -181,7 +211,17 @@
                 <!-- Acciones (solo dueño) -->
                 {% if tarea.usuario == request.user %}
                 <div class="ws-task-actions">
-                    <button class="ws-action-icon ws-edit" onclick="abrirModalEditar({{ tarea.id }}, '{{ tarea.titulo|escapejs }}', '{{ tarea.descripcion|escapejs }}', '{{ tarea.prioridad }}', '{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}')" 
+                    <!-- Botón para cambiar estado rápidamente -->
+                    <button class="ws-action-icon ws-status" 
+                            onclick="cambiarEstadoKanban({{ tarea.id }}, {% if tarea.completada %}'todo'{% elif tarea.en_progreso %}'done'{% else %}'progreso'{% endif %})" 
+                            title="Cambiar estado">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                    <button class="ws-action-icon ws-edit" 
+                            onclick="abrirModalEditar({{ tarea.id }}, '{{ tarea.titulo|escapejs }}', '{{ tarea.descripcion|escapejs }}', '{{ tarea.prioridad }}', '{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}')" 
                             title="Editar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -267,6 +307,9 @@
 </div>
 
 <script>
+const WORKSPACE_ID = {{ workspace.id }};
+const CSRF_TOKEN = '{{ csrf_token }}';
+
 function abrirModalEditar(id, titulo, descripcion, prioridad, fecha) {
     document.getElementById('edit_tarea_id').value = id;
     document.getElementById('edit_titulo').value = titulo;
@@ -280,12 +323,46 @@ function cerrarModalEditar() {
     document.getElementById('modalEditar').classList.add('hidden');
 }
 
+// Función para cambiar estado desde el workspace
+function cambiarEstadoKanban(tareaId, nuevoEstado) {
+    fetch(`/workspaces/${WORKSPACE_ID}/kanban/mover/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+        body: JSON.stringify({ 
+            tarea_id: tareaId, 
+            columna: nuevoEstado 
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            location.reload(); // Recargar para mostrar el nuevo estado
+        } else {
+            console.error('Error:', data.error);
+            alert('Error al cambiar el estado de la tarea');
+        }
+    })
+    .catch(err => {
+        console.error('Error de red:', err);
+        alert('Error de conexión');
+    });
+}
+
 // Cerrar modal con ESC
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         cerrarModalEditar();
     }
 });
+
+
+
+function confirmarEliminacion() {
+    return confirm('⚠️ ¿Estás absolutamente seguro? Esta acción eliminará el workspace "{{ workspace.nombre }}" y TODAS sus tareas de forma permanente.');
+}
 </script>
 
 {% endblock %}

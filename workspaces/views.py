@@ -1,14 +1,16 @@
 """
-workspaces/views.py - VERSIÓN CORREGIDA
+workspaces/views.py - VERSIÓN CORREGIDA CON ESTADOS PERSISTENTES
 ========================================
 Eliminada duplicación de ver_workspace.
 Todos los miembros ven todas las tareas, solo editan las suyas.
+Los estados de Kanban se mantienen entre sesiones.
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db.models import Case, When, Value, IntegerField
 
 from .models import Workspace
 from Tareas.models import Tareas
@@ -16,7 +18,6 @@ from Tareas.forms import TareaForm
 
 import json
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt  # No necesario si usas CSRF token en headers
 
 
 # ============================================================
@@ -31,6 +32,9 @@ def kanban_workspace(request, workspace_id):
         return redirect('dashboard')
  
     tareas = Tareas.objects.filter(workspace=workspace)
+
+    # Workspaces del usuario para el sidebar
+    user_workspaces = Workspace.objects.filter(miembros=request.user)
  
     context = {
         'workspace': workspace,
@@ -38,8 +42,10 @@ def kanban_workspace(request, workspace_id):
         'tareas_pendientes':  tareas.filter(completada=False, en_progreso=False),
         'tareas_progreso':    tareas.filter(en_progreso=True, completada=False),
         'tareas_completadas': tareas.filter(completada=True),
+        'user_workspaces': user_workspaces,
     }
     return render(request, 'kanban.html', context)
+
 
 @login_required
 def crear_workspace(request):
@@ -102,7 +108,7 @@ def ver_workspace(request, ws_id):
     """
     Vista ÚNICA y principal del workspace.
     - Verifica que el usuario sea miembro
-    - Muestra TODAS las tareas del workspace
+    - Muestra TODAS las tareas del workspace ordenadas por estado
     - Cada usuario SOLO puede editar/eliminar las suyas
     - Formulario para crear nuevas tareas
     """
@@ -113,10 +119,18 @@ def ver_workspace(request, ws_id):
         messages.error(request, 'No tienes acceso a este workspace.')
         return redirect('dashboard')
     
-    # Obtener todas las tareas del workspace
-    tareas = Tareas.objects.filter(workspace=ws).select_related('usuario', 'categoria').order_by('-creado_en')
+    # Obtener todas las tareas del workspace ordenadas por estado
+    # Primero las pendientes, luego en progreso, luego completadas
+    tareas = Tareas.objects.filter(workspace=ws).select_related('usuario', 'categoria').annotate(
+        estado_order=Case(
+            When(completada=True, then=Value(3)),
+            When(en_progreso=True, then=Value(2)),
+            default=Value(1),
+            output_field=IntegerField()
+        )
+    ).order_by('estado_order', '-creado_en')
     
-# 📝 Crear o editar tarea (POST)
+    # 📝 Crear o editar tarea (POST)
     if request.method == 'POST':
         if request.POST.get('editar_tarea') == '1':
             tarea_id = request.POST.get('tarea_id')
@@ -134,9 +148,14 @@ def ver_workspace(request, ws_id):
                 tarea = form.save(commit=False)
                 tarea.usuario = request.user
                 tarea.workspace = ws
+                # Asegurar estado inicial correcto
+                tarea.completada = False
+                tarea.en_progreso = False
                 tarea.save()
                 messages.success(request, f'✅ Tarea "{tarea.titulo}" creada.')
                 return redirect('ver_workspace', ws_id=ws_id)
+            else:
+                messages.error(request, '❌ Error al crear la tarea. Revisa los datos.')
     else:
         form = TareaForm()
     
@@ -150,8 +169,8 @@ def ver_workspace(request, ws_id):
         'es_admin': (ws.admin == request.user),
         'user_workspaces': user_workspaces,
         'view_mode': 'workspace',
-        'categorias': [],  # Necesario para el sidebar
-        'fecha_hoy': None,  # Necesario para el header
+        'categorias': [],
+        'fecha_hoy': None,
     }
     
     return render(request, 'workspaces/workspace.html', context)
@@ -167,8 +186,16 @@ def completar_tarea_workspace(request, tarea_id):
     tarea = get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
     
     if request.method == 'POST':
-        tarea.completada = not tarea.completada
-        tarea.save(update_fields=['completada', 'updated_at'])
+        # Si estaba completada, vuelve a pendiente
+        # Si no estaba completada, se completa y quita en_progreso
+        if tarea.completada:
+            tarea.completada = False
+            tarea.en_progreso = False
+        else:
+            tarea.completada = True
+            tarea.en_progreso = False
+        tarea.save(update_fields=['completada', 'en_progreso', 'updated_at'])
+        
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('Accept', '').startswith('application/json'):
             return JsonResponse({'ok': True, 'completada': tarea.completada})
         return redirect('ver_workspace', ws_id=tarea.workspace.id)
@@ -245,7 +272,11 @@ def panel_admin(request, ws_id):
     
     return render(request, 'workspaces/panel_admin.html', context)
 
- 
+
+# ============================================================
+# MOVER TAREA EN KANBAN (AJAX)
+# ============================================================
+
 @login_required
 @require_POST
 def mover_tarea_kanban(request, workspace_id):
@@ -279,3 +310,24 @@ def mover_tarea_kanban(request, workspace_id):
  
     tarea.save()
     return JsonResponse({'ok': True})
+
+
+
+
+@login_required
+def eliminar_workspace(request, ws_id):
+    """Elimina el workspace completo (SOLO el administrador)"""
+    ws = get_object_or_404(Workspace, pk=ws_id)
+    
+    # Seguridad: Solo el que creó el workspace (admin) puede borrarlo
+    if ws.admin != request.user:
+        messages.error(request, '❌ Solo el administrador puede eliminar este workspace.')
+        return redirect('ver_workspace', ws_id=ws_id)
+    
+    if request.method == 'POST':
+        nombre_ws = ws.nombre
+        ws.delete()
+        messages.success(request, f'🗑️ El workspace "{nombre_ws}" ha sido eliminado permanentemente.')
+        return redirect('dashboard')
+    
+    return redirect('ver_workspace', ws_id=ws_id)

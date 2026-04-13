@@ -1,4 +1,3 @@
-
 /* ═══════════════════════════════════════════════════════
    WORKSPACE - DISEÑO MINIMALISTA PROFESIONAL
    ═══════════════════════════════════════════════════════ */
@@ -7,11 +6,11 @@
     margin: 0 auto;
     padding: 20px 40px;
     width: 95%;
-    /* Cambios aquí: */
-    min-height: auto; /* Para que al menos mida la pantalla */
-    height: auto !important; /* Para que crezca si hay mucho contenido */
-    overflow: visible !important; /* Para que el scroll del navegador lo detecte */
+    min-height: auto;
+    height: auto !important;
+    overflow: visible !important;
 }
+
 /* HEADER */
 .ws-header {
     display: flex;
@@ -30,7 +29,6 @@
     display: flex;
     align-items: center;
     gap: 20px;
-
 }
 
 .ws-icon {
@@ -43,13 +41,11 @@
     justify-content: center;
     font-size: 24px;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    /* --- Añade esto --- */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    flex-shrink: 0; /* Evita que se encoja si el título es muy largo */
-    border: 2px solid rgba(255, 255, 255, 0.1); /* Un borde sutil para que brille */
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Efecto al pasar el mouse por el header */
 .ws-header:hover .ws-icon {
     transform: rotate(-10deg) scale(1.1);
     box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
@@ -192,10 +188,11 @@
 
 .ws-form-row {
     display: flex;
-    gap: 15px; /* Espacio entre los inputs */
+    gap: 15px;
     align-items: center;
     margin-bottom: 15px;
 }
+
 .ws-form-row-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -221,8 +218,8 @@
 }
 
 .ws-input-title {
-    flex: 2; 
-    font-size: 16px; /* Texto un poco más grande */
+    flex: 2;
+    font-size: 16px;
 }
 
 .ws-input-date {
@@ -234,21 +231,15 @@
     resize: vertical;
 }
 
-.ws-form-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: flex-start;
-}
-
 /* SECCIÓN TAREAS */
 .ws-tasks-section {
     background: #1e293b;
     border-radius: 16px;
     border: 1px solid #334155;
-    overflow: visible !important; /* Cambiado de hidden a visible */
+    overflow: visible !important;
     height: auto !important;
 }
+
 .ws-section-header {
     display: flex;
     justify-content: space-between;
@@ -273,14 +264,13 @@
     border-radius: 20px;
 }
 
-/* LISTA DE TAREAS - SCROLL HABILITADO */
+/* LISTA DE TAREAS */
 .ws-tasks-list {
-    height: auto !important; /* Quitamos el límite de 500px */
-    max-height: none !important; 
-    overflow-y: visible !important; /* Dejamos que fluyan hacia abajo */
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
 }
 
-/* Scrollbar personalizada */
 .ws-tasks-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -313,11 +303,39 @@
 
 .ws-task-item:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transform: translateX(5px); /* Pequeño efecto al pasar el mouse */
+    transform: translateX(5px);
 }
+
 .ws-task-item.completed .ws-task-title {
     text-decoration: line-through;
     color: #64748b;
+}
+
+/* Badges de estado Kanban */
+.ws-status-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ws-status-todo {
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+}
+
+.ws-status-progreso {
+    background: #854d0e;
+    color: #fde047;
+}
+
+.ws-status-done {
+    background: #065f46;
+    color: #34d399;
 }
 
 /* CHECKBOX */
@@ -478,6 +496,10 @@
     background: rgba(239, 68, 68, 0.1);
 }
 
+.ws-status:hover {
+    color: #6366f1;
+}
+
 .ws-task-readonly {
     padding: 6px;
     color: #475569;
@@ -607,7 +629,7 @@
     .ws-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end; /* Alinea los botones con la base del título */
+        align-items: flex-end;
         margin-bottom: 40px;
         padding-bottom: 20px;
         border-bottom: 1px solid #e2e8f0;
@@ -627,78 +649,67 @@
     }
 }
 
-/* ═══════════════════════════════════════════════════════
-   DISEÑO DE EQUIPOS EN SIDEBAR (ESTILO DE REFERENCIA)
-   ═══════════════════════════════════════════════════════ */
-
-/* 1. Contenedor del panel (con sangría y fondo) */
+/* SIDEBAR EQUIPOS */
 #wsSidebarPanel {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(15, 23, 42, 0.4); /* Fondo sutil para diferenciar la zona */
-    margin: 0 10px; /* Sangría a los lados */
-    border-radius: 8px; /* Bordes suaves */
+    background: rgba(15, 23, 42, 0.4);
+    margin: 0 10px;
+    border-radius: 8px;
 }
 
-/* Estado abierto */
 #wsSidebarPanel.open {
     max-height: 400px;
     margin-top: 5px;
     margin-bottom: 15px;
     padding: 5px 0;
-    overflow-y: auto; /* Por si la lista crece mucho */
+    overflow-y: auto;
 }
 
-/* 2. Enlaces de Equipo (Sangría y Flexbox) */
 .ws-sidebar-link {
     display: flex;
     align-items: center;
-    gap: 12px; /* Espacio entre el punto y el texto */
+    gap: 12px;
     padding: 10px 16px;
-    color: #94a3b8; /* Mismo color de tus categorías */
-    font-size: 13.5px; /* Mismo tamaño que tus categorías */
+    color: #94a3b8;
+    font-size: 13.5px;
     text-decoration: none;
     transition: all 0.2s ease;
     border-radius: 6px;
 }
 
 .ws-sidebar-link:hover {
-    color: #f1f5f9; /* Texto más claro al hover */
-    background: rgba(255, 255, 255, 0.05); /* Fondo sutil al hover */
-    padding-left: 20px; /* Efecto de desplazamiento sutil al hover */
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 20px;
 }
 
-/* 3. El Puntito de Color (Estilo de la imagen) */
 .ws-sidebar-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3); /* Pequeña sombra para que resalte */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Scrollbar fina para la lista de equipos */
 #wsSidebarPanel::-webkit-scrollbar {
     width: 4px;
 }
 
 #wsSidebarPanel::-webkit-scrollbar-thumb {
-    background: #334155; /* Color sutil para la barra */
+    background: #334155;
     border-radius: 10px;
 }
 
-/* --- NUEVOS ESTILOS PARA MÉTRICAS --- */
-
-/* Contenedor que evita que todo se vea chiquito */
+/* MÉTRICAS */
 .metrics-view-wrapper {
     width: 100%;
-    max-width: 1200px; /* Ancho profesional */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Reemplaza o añade para los 4 cuadros superiores */
 .metrics-summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -707,7 +718,7 @@
 }
 
 .metric-card-pro {
-    background: #1e293b; /* Color oscuro del sidebar */
+    background: #1e293b;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -718,7 +729,7 @@
     display: block;
     font-size: 2.2rem;
     font-weight: 800;
-    color: #10b981; /* Tu verde TaskFlow */
+    color: #10b981;
     margin-bottom: 5px;
 }
 
@@ -729,7 +740,6 @@
     letter-spacing: 1px;
 }
 
-/* Para que la tabla se vea como una tarjeta blanca elegante */
 .metrics-table-card {
     background: white;
     border-radius: 12px;
