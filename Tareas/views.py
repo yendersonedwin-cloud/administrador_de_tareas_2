@@ -16,13 +16,17 @@ try:
 except ImportError:
     Categorias = None
 
+try:
+    from workspaces.models import Workspace
+except ImportError:
+    Workspace = None
+
 
 @login_required
 def lista_tareas(request):
     view_mode = request.GET.get('view', 'day')
     cat_id    = request.GET.get('cat')
 
-    # ✅ hoy siempre definida aquí arriba — no dentro de un if
     hoy = date.today()
 
     tareas_qs = Tareas.objects.filter(usuario=request.user).select_related('categoria')
@@ -48,7 +52,7 @@ def lista_tareas(request):
             tareas_qs.filter(completada=False, fecha_vencimiento__isnull=True)
         ).distinct().order_by('prioridad', 'creado_en')
 
-    # Categorías para el sidebar con conteo
+    # Categorías para el sidebar
     categorias = []
     if Categorias:
         for cat in Categorias.objects.all():
@@ -59,7 +63,6 @@ def lista_tareas(request):
             ).count()
             categorias.append(cat)
 
-    # Categoría activa (para header)
     categoria_activa = None
     if view_mode == 'category' and cat_id and Categorias:
         try:
@@ -67,8 +70,12 @@ def lista_tareas(request):
         except Categorias.DoesNotExist:
             pass
 
-    # ✅ Fecha compatible con Windows (sin %-d)
-    fecha = timezone.now()
+    # Workspaces del usuario para mostrar en el sidebar
+    user_workspaces = []
+    if Workspace:
+        user_workspaces = list(Workspace.objects.filter(miembros=request.user))
+
+    fecha     = timezone.now()
     fecha_hoy = fecha.strftime('%A, %B ') + str(fecha.day) + ', ' + str(fecha.year)
 
     context = {
@@ -78,6 +85,7 @@ def lista_tareas(request):
         'cat_activa':       int(cat_id) if cat_id else None,
         'categoria_activa': categoria_activa,
         'fecha_hoy':        fecha_hoy,
+        'user_workspaces':  user_workspaces,  # ← nuevo
     }
     return render(request, 'dashboard.html', context)
 
@@ -117,7 +125,6 @@ def eliminar_tarea(request, tarea_id):
 
 @login_required
 def completar_tarea(request, tarea_id):
-    """Toggle completada — llamado por fetch() desde dashboard.js"""
     tarea = get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
     if request.method == 'POST':
         tarea.completada = not tarea.completada

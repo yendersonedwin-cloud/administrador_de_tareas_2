@@ -7,7 +7,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -20,6 +19,8 @@ urlpatterns = [
 
     # CRUD de categorías
     path('categorias/', include('categorias.urls')),
+
+    path('workspace/', include('workspaces.urls')),
 ]
 
 if settings.DEBUG:

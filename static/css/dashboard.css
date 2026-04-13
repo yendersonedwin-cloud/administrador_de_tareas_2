@@ -1,12 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   TASKFLOW — dashboard.css
-   Paleta: Verde esmeralda (#10b981) + Dark sidebar (#0f172a)
-   Fuente: DM Sans (Google Fonts)
-═══════════════════════════════════════════════════════════ */
-
-
-/* ── Variables globales ── */
-
 :root {
     --primary: #10b981;
     --primary-hover: #059669;
@@ -34,8 +25,6 @@
 }
 
 
-/* ── Reset base ── */
-
 *,
 *::before,
 *::after {
@@ -53,20 +42,16 @@ button {
     cursor: pointer;
     font-family: inherit;
 }
-
 body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg-main);
     color: var(--text-dark);
     display: flex;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh; /* Cambia height por min-height */
+    height: auto !important; /* <--- Agrega esto para liberar el candado */
+    overflow-x: hidden;
+    overflow-y: auto !important; 
 }
-
-
-/* ═══════════════════════════════════════════
-   SIDEBAR
-════════════════════════════════════════════ */
 
 .sidebar {
     width: 260px;
@@ -76,12 +61,11 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    overflow-y: auto;
+    position: sticky;   /* ← CAMBIO: sticky en vez de nada */
+    top: 0;             /* ← NUEVO */
+    height: 100vh;
+    overflow-y: hidden;
 }
-
-
-/* Logo y brand */
-
 .sidebar-header {
     display: flex;
     align-items: center;
@@ -106,20 +90,15 @@ body {
     font-weight: 700;
     letter-spacing: -0.3px;
 }
-
 .brand-tagline {
     font-size: 11px;
     color: var(--text-light);
     margin-top: 1px;
 }
-
-
-/* Nav links */
-
 .sidebar-nav {
     flex: 1;
+    overflow-y: auto;
 }
-
 .nav-link {
     display: flex;
     align-items: center;
@@ -156,10 +135,6 @@ body {
     width: 20px;
     flex-shrink: 0;
 }
-
-
-/* Categorías */
-
 .category-header {
     margin: 28px 12px 10px;
     font-size: 10.5px;
@@ -216,13 +191,10 @@ body {
     padding: 6px 12px;
 }
 
-
-/* Footer sidebar */
-
 .sidebar-footer {
-    margin-top: 20px;
-    border-top: 1px solid #1e293b;
-    padding-top: 16px;
+    margin-top: auto; /* Refuerza que se quede abajo */
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Una línea sutil divisoria */
 }
 
 .logout-link {
@@ -235,19 +207,14 @@ body {
 }
 
 
-/* ═══════════════════════════════════════════
-   MAIN CONTENT
-════════════════════════════════════════════ */
-
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    height: auto !important;
+    overflow-y: visible !important;
 }
 
-
-/* Header */
 
 .content-header {
     padding: 40px 48px 24px;
@@ -379,17 +346,12 @@ body {
     display: none;
 }
 
-
-/* Tasks Container */
-
 .tasks-container {
     padding: 0 48px 40px;
     overflow-y: auto;
     flex: 1;
 }
 
-
-/* Task Card */
 
 .task-card {
     background: var(--white);
@@ -1138,7 +1100,7 @@ body {
 ════════════════════════════════════════════ */
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -1146,7 +1108,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #94a3b8; /* Un gris más oscuro para que resalte */
     border-radius: 10px;
 }
 
@@ -1284,4 +1246,232 @@ body {
         opacity: 0;
         transform: translateX(120%);
     }
+}
+/* Contenedor principal de notificaciones */
+#toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* Estilo base para todos los Toasts (unificado) */
+.tf-toast {
+    background: #1e293b;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    max-width: 400px;
+    pointer-events: auto;
+    animation: slideInRight 0.3s ease forwards;
+    border-left: 4px solid var(--primary); /* El toque verde de TaskFlow */
+}
+
+/* Variaciones de color según el tipo de mensaje */
+.tf-toast.success { border-left-color: var(--primary); }
+.tf-toast.error { border-left-color: var(--danger); }
+.tf-toast.warning { border-left-color: var(--warning); }
+.tf-toast.info { border-left-color: var(--info); }
+
+
+/* ══════════════════════════════════════════
+   BOTÓN ESPACIO DE EQUIPO (sidebar toggle)
+══════════════════════════════════════════ */
+
+.ws-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 11px;
+    padding: 11px 12px;
+    border-radius: var(--radius-sm);
+    color: #94a3b8;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 3px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    font-weight: 500;
+    user-select: none;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+
+.ws-sidebar-toggle:hover {
+    background: var(--sidebar-hover);
+    color: white;
+}
+
+.ws-sidebar-toggle.open {
+    background: var(--sidebar-hover);
+    color: white;
+}
+
+.ws-sidebar-toggle.open .ws-sidebar-toggle-icon svg {
+    stroke: var(--primary);
+}
+
+.ws-sidebar-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.ws-sidebar-toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+/* Punto decorativo del toggle */
+.ws-sidebar-toggle .ws-sidebar-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+/* Flecha animada */
+.ws-sidebar-arrow {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    opacity: 0.5;
+}
+
+.ws-sidebar-toggle:hover .ws-sidebar-arrow {
+    opacity: 1;
+}
+
+.ws-sidebar-arrow.open {
+    transform: rotate(180deg);
+    opacity: 1;
+    stroke: var(--primary) !important;
+}
+
+/* Panel colapsable */
+.ws-sidebar-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(15, 23, 42, 0.4);
+    margin: 0 6px;
+    border-radius: 8px;
+}
+
+.ws-sidebar-panel.open {
+    max-height: 400px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding: 4px 0;
+    overflow-y: auto;
+}
+
+/* Scrollbar fina del panel */
+.ws-sidebar-panel::-webkit-scrollbar { width: 3px; }
+.ws-sidebar-panel::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+/* Links dentro del panel */
+.ws-sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    color: #94a3b8;
+    font-size: 13.5px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 1px 4px;
+}
+
+.ws-sidebar-link:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Badges de rol */
+.ws-role-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.ws-role-badge.admin {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Ítem kanban debajo de cada workspace */
+.sidebar-kanban-item a {
+    transition: color 0.2s, opacity 0.2s;
+}
+.sidebar-kanban-item a:hover {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+/* Botones Crear / Unirse */
+.ws-sidebar-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 10px 4px;
+    margin: 0 4px;
+}
+
+.ws-action-pill {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    text-align: center;
+    border: none;
+}
+
+.ws-action-pill.create {
+    background: #10b981;
+    color: white;
+}
+
+.ws-action-pill.create:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.ws-action-pill.join {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #334155;
+}
+
+.ws-action-pill.join:hover {
+    background: #1e293b;
+    color: white;
+    border-color: #475569;
 }

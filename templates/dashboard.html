@@ -5,23 +5,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow </title>
-    <!-- Fuente Geist Sans — moderna, limpia, profesional -->
+    <title>{% block page_title %}TaskFlow{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <!-- Estilos del sistema de workspaces y toasts -->
+    <link rel="stylesheet" href="{% static 'css/workspace.css' %}">
+     <link rel="stylesheet" href="{% static 'css/kanban.css' %}">
 </head>
 
-<body>
+<body data-view-mode="{{ view_mode }}">
 
     <!-- ═══════════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════════════ -->
+         SIDEBAR
+    ════════════════════════════════════════════ -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
             </div>
             <div>
                 <h2 class="brand-name">TaskFlow</h2>
@@ -30,24 +33,52 @@
         </div>
 
         <nav class="sidebar-nav">
-            <!-- Nav principal -->
-            <a href="{% url 'dashboard' %}?view=day" class="nav-link {% if view_mode == 'day' or not view_mode %}active{% endif %}" data-view="day">
+
+            <!-- ── Navegación principal ── -->
+            <a href="{% url 'dashboard' %}?view=day"
+               class="nav-link {% if view_mode == 'day' or not view_mode %}active{% endif %}"
+               data-view="day">
                 <span class="nav-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            </span> Mi Día
-            </a>
-            <a href="{% url 'dashboard' %}?view=upcoming" class="nav-link {% if view_mode == 'upcoming' %}active{% endif %}" data-view="upcoming">
-                <span class="nav-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </span> Proximas Tareas
-            </a>
-            <a href="{% url 'dashboard' %}?view=completed" class="nav-link {% if view_mode == 'completed' %}active{% endif %}" data-view="completed">
-                <span class="nav-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </span> Completadas
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </span> Mi Día
             </a>
 
-            <!-- Categorías -->
+            <a href="{% url 'dashboard' %}?view=upcoming"
+               class="nav-link {% if view_mode == 'upcoming' %}active{% endif %}"
+               data-view="upcoming">
+                <span class="nav-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </span> Proximas Tareas
+            </a>
+
+            <a href="{% url 'dashboard' %}?view=completed"
+               class="nav-link {% if view_mode == 'completed' %}active{% endif %}"
+               data-view="completed">
+                <span class="nav-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </span> Completadas
+            </a>
+
+            <!-- ── Categorías ── -->
             <div class="category-header">
                 <span>CATEGORIAS</span>
                 <button type="button" onclick="openCatModal()" class="add-cat-btn" title="Nueva categoría">+</button>
@@ -57,87 +88,183 @@
                 {% for cat in categorias %}
                 <div class="cat-nav-item {% if view_mode == 'category' and cat_activa == cat.id %}active{% endif %}">
                     <a href="{% url 'dashboard' %}?view=category&cat={{ cat.id }}" class="cat-nav-link">
-                        <span class="cat-dot" style="background-color:{{ cat.color }}"></span>
+                        <!--[if !IE]><!--><span class="cat-dot" style="background-color:{{ cat.color }}"></span><!--<![endif]-->
                         <span class="cat-name">{{ cat.nombre }}</span>
                         <span class="cat-count">{{ cat.tareas_count }}</span>
                     </a>
-                    <!-- Botones editar/eliminar — aparecen en hover -->
                     <div class="cat-actions">
-                        <button type="button" class="cat-action-btn edit-cat-btn" data-cat-id="{{ cat.id }}" data-cat-name="{{ cat.nombre|escapejs }}" data-cat-color="{{ cat.color }}" title="Editar categoría">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                        <button type="button" class="cat-action-btn cat-delete-btn" data-cat-id="{{ cat.id }}" data-cat-name="{{ cat.nombre|escapejs }}" title="Eliminar categoría">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                    </button>
+                        <button type="button" class="cat-action-btn edit-cat-btn"
+                                data-cat-id="{{ cat.id }}"
+                                data-cat-name="{{ cat.nombre|escapejs }}"
+                                data-cat-color="{{ cat.color }}"
+                                title="Editar categoría">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button type="button" class="cat-action-btn cat-delete-btn"
+                                data-cat-id="{{ cat.id }}"
+                                data-cat-name="{{ cat.nombre|escapejs }}"
+                                title="Eliminar categoría">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
                     </div>
                 </div>
                 {% empty %}
                 <p class="empty-text">No hay categorías</p>
                 {% endfor %}
             </div>
+
+            <!-- ── ESPACIO DE EQUIPO (colapsable) ── -->
+            <div class="ws-sidebar-toggle" id="wsSidebarToggle" onclick="toggleWsSidebar()">
+                <div class="ws-sidebar-toggle-left">
+                    <span class="ws-sidebar-toggle-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </span>
+                    <span>Espacio de equipo</span>
+                </div>
+                <svg class="ws-sidebar-arrow" id="wsArrow" width="14" height="14"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
+
+            <!-- Panel colapsable de workspaces -->
+            <div class="ws-sidebar-panel" id="wsSidebarPanel">
+                {% if user_workspaces %}
+                    {% for ws in user_workspaces %}
+                    <a href="{% url 'ver_workspace' ws.id %}" class="ws-sidebar-link" style="margin-bottom: 0;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                            <span class="ws-sidebar-dot" style="background-color: #10b981;"></span>
+                            <span class="cat-name">{{ ws.nombre }}</span>
+                        </div>
+
+                        <div class="ws-sidebar-item-right" style="display: flex; align-items: center; gap: 8px;">
+                            {% if ws.admin == request.user %}
+                                <span class="ws-role-badge admin">Admin</span>
+                            {% else %}
+                                <form method="POST" action="{% url 'salir_workspace' ws.id %}" onsubmit="return confirm('¿Salir?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="ws-leave-btn" style="background:none; border:none; padding:0; cursor:pointer; color:#94a3b8;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <div class="sidebar-kanban-item" style="padding-left: 32px; margin-bottom: 10px; margin-top: -5px;">
+                        <a href="{% url 'kanban_workspace' ws.id %}" style="font-size: 0.75rem; color: #64748b; text-decoration: none; display: flex; align-items: center; gap: 6px; opacity: 0.8;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            Tablero Kanban
+                        </a>
+                    </div>
+                {% endfor %}
+                {% else %}
+                    <p class="ws-sidebar-empty">Sin espacios de equipo</p>
+                {% endif %}
+
+                <!-- Botones Crear / Unirse -->
+                <div class="ws-sidebar-actions">
+                    <button type="button"
+                            onclick="document.getElementById('modalCrearWs').classList.remove('hidden')"
+                            class="ws-action-pill create">
+                        + Crear
+                    </button>
+                    <button type="button"
+                            onclick="document.getElementById('modalUnirseWs').classList.remove('hidden')"
+                            class="ws-action-pill join">
+                        Unirse
+                    </button>
+                </div>
+            </div>
+
         </nav>
 
+        <!-- ── Footer del sidebar ── -->
         <div class="sidebar-footer">
-            <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <a href="{% url 'profile' %}"
+               class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
                 <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </span> Configuración de Perfil
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </span> Configuración de Perfil
             </a>
             <form method="POST" action="{% url 'logout' %}" style="margin:0;">
                 {% csrf_token %}
-                <button type="submit" class="nav-link logout-link" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">
-                <span class="nav-icon">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </span>
-                Cerrar Sesión
-            </button>
+                <button type="submit" class="nav-link logout-link"
+                        style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">
+                    <span class="nav-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </span>
+                    Cerrar Sesión
+                </button>
             </form>
         </div>
     </aside>
 
+
     <!-- ═══════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════ -->
+         MAIN CONTENT
+    ════════════════════════════════════════════ -->
     <main class="main-content">
-        <!-- ── Mensaje de bienvenida ── -->
-        {% if messages %} {% for message in messages %}
-        <div class="welcome-toast">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>            {{ message }}
-        </div>
-        {% endfor %} {% endif %} {% block content %}
-        <!-- Header dinámico según vista -->
+
+    {% block main_content %}
+
+        <!-- ── Header dinámico según vista ── -->
         <header class="content-header">
             <div>
                 {% if view_mode == 'upcoming' %}
-                <h1>Próximas Tareas</h1>
-                <p class="date-display">Organiza lo que tienes pendiente</p>
+                    <h1>Próximas Tareas</h1>
+                    <p class="date-display">Organiza lo que tienes pendiente</p>
                 {% elif view_mode == 'completed' %}
-                <h1>Completadas</h1>
-                <p class="date-display">Tareas finalizadas</p>
+                    <h1>Completadas</h1>
+                    <p class="date-display">Tareas finalizadas</p>
                 {% elif view_mode == 'category' and categoria_activa %}
-                <h1>
-                    <span class="header-cat-dot" style="background:{{ categoria_activa.color }}"></span> {{ categoria_activa.nombre }}
-                </h1>
-                <p class="date-display">{{ tareas|length }} tarea{{ tareas|length|pluralize }}</p>
+                    <h1>
+                        <span class="header-cat-dot" style="background:{{ categoria_activa.color }}"></span>
+                        {{ categoria_activa.nombre }}
+                    </h1>
+                    <p class="date-display">{{ tareas|length }} tarea{{ tareas|length|pluralize }}</p>
                 {% else %}
-                <h1>Mi Día</h1>
-                <p class="date-display">{{ fecha_hoy }}</p>
+                    <h1>Mi Día</h1>
+                    <p class="date-display">{{ fecha_hoy }}</p>
                 {% endif %}
             </div>
         </header>
 
-        <!-- Quick Add — solo visible en My Day y categorías -->
+        <!-- Quick Add — solo en Mi Día y Categorías -->
         {% if view_mode != 'completed' %}
         <div class="quick-add-wrapper" id="quickAddWrapper">
             <div class="quick-add-trigger" id="quickAddTrigger" onclick="showQuickAdd()">
                 <span class="plus-sign">+</span>
                 <span class="placeholder-text">Agregar una nueva tarea...</span>
             </div>
-            <form action="{% url 'crear_tarea' %}" method="POST" class="quick-add-form hidden" id="quickAddForm">
+            <form action="{% url 'crear_tarea' %}" method="POST"
+                  class="quick-add-form hidden" id="quickAddForm">
                 {% csrf_token %}
                 <span class="plus-sign-form">+</span>
-                <input type="text" name="titulo" id="quickAddInput" placeholder="What needs to be done?" required autofocus> {% if view_mode == 'category' and categoria_activa %}
-                <input type="hidden" name="categoria" value="{{ categoria_activa.id }}"> {% endif %}
+                <input type="text" name="titulo" id="quickAddInput"
+                       placeholder="What needs to be done?" required autofocus>
+                {% if view_mode == 'category' and categoria_activa %}
+                    <input type="hidden" name="categoria" value="{{ categoria_activa.id }}">
+                {% endif %}
                 <p class="quick-add-hint">Press <kbd>Enter</kbd> to create • <kbd>Esc</kbd> to cancel</p>
             </form>
         </div>
@@ -146,18 +273,29 @@
         <!-- Lista de tareas -->
         <div class="tasks-container" id="tasksContainer">
             {% for tarea in tareas %}
-            <div class="task-card {% if tarea.completada %}task-completed{% endif %}" data-id="{{ tarea.id }}" data-titulo="{{ tarea.titulo|escapejs }}" data-desc="{{ tarea.descripcion|default:''|escapejs }}" data-prioridad="{{ tarea.prioridad }}" data-prioridad-display="{{ tarea.get_prioridad_display }}"
-                data-fecha="{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}" data-categoria-id="{{ tarea.categoria.id|default:'' }}" data-categoria-nombre="{{ tarea.categoria.nombre|default:''|escapejs }}" data-categoria-color="{{ tarea.categoria.color|default:'' }}"
-                data-updated="{{ tarea.updated_at|date:'M j, Y H:i'|default:'' }}">
+            <div class="task-card {% if tarea.completada %}task-completed{% endif %}"
+                 data-id="{{ tarea.id }}"
+                 data-titulo="{{ tarea.titulo|escapejs }}"
+                 data-desc="{{ tarea.descripcion|default:''|escapejs }}"
+                 data-prioridad="{{ tarea.prioridad }}"
+                 data-prioridad-display="{{ tarea.get_prioridad_display }}"
+                 data-fecha="{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}"
+                 data-categoria-id="{{ tarea.categoria.id|default:'' }}"
+                 data-categoria-nombre="{{ tarea.categoria.nombre|default:''|escapejs }}"
+                 data-categoria-color="{{ tarea.categoria.color|default:'' }}"
+                 data-updated="{{ tarea.updated_at|date:'M j, Y H:i'|default:'' }}">
 
-                <!-- Checkbox completar -->
-                <button class="circle-check {% if tarea.completada %}checked{% endif %}" onclick="toggleComplete(event, {{ tarea.id }}, this)" title="Marcar como completada">
-                {% if tarea.completada %}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                {% endif %}
-            </button>
+                <button class="circle-check {% if tarea.completada %}checked{% endif %}"
+                        onclick="toggleComplete(event, '{% if tarea.id %}{{ tarea.id }}{% endif %}', this)"
+                        title="Marcar como completada">
+                    {% if tarea.completada %}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white"
+                         stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {% endif %}
+                </button>
 
-                <!-- Contenido -->
                 <div class="task-details" onclick="openDetail(this.parentElement)">
                     <div class="task-title-text">{{ tarea.titulo }}</div>
                     {% if tarea.descripcion %}
@@ -165,52 +303,62 @@
                     {% endif %}
                     <div class="task-info-row">
                         {% if tarea.prioridad %}
-                        <span class="prio-badge prio-{{ tarea.prioridad|lower }}">{{ tarea.get_prioridad_display }}</span> {% endif %} {% if tarea.fecha_vencimiento %}
+                        <span class="prio-badge prio-{{ tarea.prioridad|lower }}">
+                            {{ tarea.get_prioridad_display }}
+                        </span>
+                        {% endif %}
+                        {% if tarea.fecha_vencimiento %}
                         <span class="date-badge">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        {{ tarea.fecha_vencimiento|date:'M j' }}
-                    </span> {% endif %} {% if tarea.categoria %}
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            {{ tarea.fecha_vencimiento|date:'M j' }}
+                        </span>
+                        {% endif %}
+                        {% if tarea.categoria %}
                         <span class="cat-badge">
-                        <span class="mini-dot" style="background:{{ tarea.categoria.color }}"></span> {{ tarea.categoria.nombre }}
+                            <span class="mini-dot" style="background:{{ tarea.categoria.color }}"></span>
+                            {{ tarea.categoria.nombre }}
                         </span>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Acciones rápidas (hover) -->
                 <div class="task-actions">
-                    <button class="task-action-btn edit-btn" onclick="openDetail(this.closest('.task-card'))" title="Editar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-                    <button class="task-action-btn delete-btn" onclick="submitDelete(this.closest('.task-card'))" title="Eliminar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                </button>
+                    <button class="task-action-btn edit-btn"
+                            onclick="openDetail(this.closest('.task-card'))" title="Editar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="task-action-btn delete-btn"
+                            onclick="submitDelete(this.closest('.task-card'))" title="Eliminar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
                 </div>
             </div>
             {% empty %}
             <div class="empty-state">
                 {% if view_mode == 'completed' %}
-                <div class="empty-icon">✅</div>
-                <p class="empty-title">No hay tareas completadas</p>
-                <p class="empty-sub">Completa una tarea para verla aquí</p>
+                    <div class="empty-icon">✅</div>
+                    <p class="empty-title">No hay tareas completadas</p>
+                    <p class="empty-sub">Completa una tarea para verla aquí</p>
                 {% elif view_mode == 'upcoming' %}
-                <div class="empty-icon">📅</div>
-                <p class="empty-title">Sin tareas próximas</p>
-                <p class="empty-sub">Asigna fechas a tus tareas para verlas aquí</p>
+                    <div class="empty-icon">📅</div>
+                    <p class="empty-title">Sin tareas próximas</p>
+                    <p class="empty-sub">Asigna fechas a tus tareas para verlas aquí</p>
                 {% else %}
-                <div class="empty-icon">☀️</div>
-                <p class="empty-title">Tu lista está vacía</p>
-                <p class="empty-sub">¡Empieza añadiendo una tarea hoy!</p>
+                    <div class="empty-icon">☀️</div>
+                    <p class="empty-title">Tu lista está vacía</p>
+                    <p class="empty-sub">¡Empieza añadiendo una tarea hoy!</p>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
-        {% endblock %}
+
+    {% endblock main_content %}
+
     </main>
 
     <!-- ═══════════════════════════════════════════
-     PANEL LATERAL — DETALLE DE TAREA
-════════════════════════════════════════════ -->
+         PANEL LATERAL — DETALLE DE TAREA
+    ════════════════════════════════════════════ -->
     <aside id="detailPanel" class="detail-panel hidden">
         <div class="panel-header">
             <h3>Detalles de la Tarea</h3>
@@ -219,84 +367,70 @@
 
         <form id="editForm" method="POST" class="edit-form-body">
             {% csrf_token %}
-
-            <!-- Título -->
             <div class="input-field">
                 <label>Título de la Tarea</label>
                 <input type="text" name="titulo" id="detTitle" required placeholder="Nombre de la tarea">
             </div>
-
-            <!-- Descripción -->
             <div class="input-field">
                 <label>Descripción</label>
                 <textarea name="descripcion" id="detDesc" rows="4" placeholder="Añadir descripción..."></textarea>
             </div>
-
-            <!-- Prioridad -->
             <div class="input-field">
                 <label>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                Prioridad
-            </label>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Prioridad
+                </label>
                 <div class="custom-select-wrapper">
                     <select name="prioridad" id="detPrioridad" class="custom-select" onchange="updatePrioStyle(this)">
-                    <option value="B">🔵 Prioridad baja</option>
-                    <option value="M">🟡 Prioridad media</option>
-                    <option value="A">🔴 Prioridad Alta</option>
-                </select>
+                        <option value="B">🔵 Prioridad baja</option>
+                        <option value="M">🟡 Prioridad media</option>
+                        <option value="A">🔴 Prioridad Alta</option>
+                    </select>
                     <span class="select-arrow">▾</span>
                 </div>
             </div>
-
-            <!-- Fecha de vencimiento -->
             <div class="input-field">
                 <label>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Fecha de Vencimiento
-            </label>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Fecha de Vencimiento
+                </label>
                 <input type="date" name="fecha_vencimiento" id="detFecha" class="date-input">
             </div>
-
-            <!-- Categoría -->
             <div class="input-field">
                 <label>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                Categoria
-            </label>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    Categoria
+                </label>
                 <div class="custom-select-wrapper">
                     <select name="categoria" id="detCategoria" class="custom-select">
-                    <option value="">— Sin categoría —</option>
-                    {% for cat in categorias %}
-                    <option value="{{ cat.id }}" data-color="{{ cat.color }}">{{ cat.nombre }}</option>
-                    {% endfor %}
-                </select>
+                        <option value="">— Sin categoría —</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" data-color="{{ cat.color }}">{{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
                     <span class="select-arrow">▾</span>
                 </div>
             </div>
-
-            <!-- Última actualización -->
             <p class="last-updated" id="detUpdated"></p>
-
-            <!-- Botones -->
             <div class="panel-footer-btns">
                 <button type="button" onclick="submitDeleteFromPanel()" class="btn-danger-outline">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                Delete
-            </button>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    Delete
+                </button>
                 <button type="submit" class="btn-primary-solid">Save Changes</button>
             </div>
         </form>
-
-        <!-- Form oculto de delete (desde el panel) -->
         <form id="deleteFormPanel" method="POST" style="display:none;">{% csrf_token %}</form>
     </aside>
 
-    <!-- Overlay oscuro para el panel -->
     <div id="panelOverlay" class="panel-overlay hidden" onclick="closeDetail()"></div>
 
+
     <!-- ═══════════════════════════════════════════
-     MODAL — NUEVA CATEGORÍA (igual que screenshot)
-════════════════════════════════════════════ -->
+         MODALES
+    ════════════════════════════════════════════ -->
+
+    <!-- Nueva Categoría -->
     <div id="modalCat" class="modal-overlay hidden">
         <div class="modal-content cat-modal">
             <div class="modal-header">
@@ -307,11 +441,10 @@
                 {% csrf_token %}
                 <div class="input-field">
                     <label>Nombre de la Categoría</label>
-                    <input type="text" name="nombre" placeholder="Estudio, Trabajo, Gimnsio..." required class="modal-input">
+                    <input type="text" name="nombre" placeholder="Estudio, Trabajo, Gimnasio..." required class="modal-input">
                 </div>
                 <div class="input-field">
                     <label>Color</label>
-                    <!-- Paleta de colores predefinidos como en el screenshot -->
                     <div class="color-palette">
                         <input type="hidden" name="color" id="selectedColor" value="#3b82f6">
                         <button type="button" class="color-swatch active" data-color="#3b82f6" style="background:#3b82f6;" onclick="selectColor(this)"></button>
@@ -329,46 +462,39 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-     MODAL — CONFIRMAR ELIMINACIÓN (card bonita)
-════════════════════════════════════════════ -->
+    <!-- Confirmar eliminar tarea -->
     <div id="customConfirmModal" class="modal-overlay hidden">
         <div class="modal-content confirm-modal">
             <div class="confirm-icon-wrap">
                 <div class="confirm-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </div>
             </div>
             <h3 class="confirm-title">¿Eliminar tarea?</h3>
             <p class="confirm-subtitle">Esta acción no se puede deshacer</p>
-            <div class="confirm-task-preview">
-                <strong id="deleteTaskName"></strong>
-            </div>
+            <div class="confirm-task-preview"><strong id="deleteTaskName"></strong></div>
             <div class="confirm-btns-row">
                 <button type="button" onclick="closeCustomConfirm()" class="btn-ghost">Cancelar</button>
                 <button id="confirmDeleteBtn" class="btn-danger-solid">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-                Sí, eliminar
-            </button>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                    Sí, eliminar
+                </button>
             </div>
-            <!-- Forms ocultos de eliminación -->
             <form id="deleteForm" method="POST" style="display:none;">{% csrf_token %}</form>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-     MODAL — EDITAR CATEGORÍA
-════════════════════════════════════════════ -->
+    <!-- Editar Categoría -->
     <div id="modalEditCat" class="modal-overlay hidden">
         <div class="modal-content cat-modal">
             <div class="modal-header">
-                <h3>Edit Category</h3>
+                <h3>Editar Categoría</h3>
                 <button onclick="closeEditCatModal()" class="close-panel-btn">✕</button>
             </div>
             <form id="editCatForm" method="POST">
                 {% csrf_token %}
                 <div class="input-field">
-                    <label>Category Name</label>
+                    <label>Nombre</label>
                     <input type="text" name="nombre" id="editCatNombre" placeholder="Nombre..." required class="modal-input">
                 </div>
                 <div class="input-field">
@@ -385,66 +511,149 @@
                         <button type="button" class="color-swatch-edit" data-color="#ec4899" style="background:#ec4899;" onclick="selectEditColor(this)"></button>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-solid btn-full">Save Changes</button>
+                <button type="submit" class="btn-primary-solid btn-full">Guardar cambios</button>
             </form>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-     MODAL — CONFIRMAR ELIMINACIÓN DE CATEGORÍA
-════════════════════════════════════════════ -->
+    <!-- Confirmar eliminar categoría -->
     <div id="confirmDeleteCatModal" class="modal-overlay hidden">
         <div class="modal-content confirm-modal">
             <div class="confirm-icon-wrap">
                 <div class="confirm-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </div>
             </div>
             <h3 class="confirm-title">¿Eliminar categoría?</h3>
             <p class="confirm-subtitle">Las tareas de esta categoría quedarán sin categoría</p>
-            <div class="confirm-task-preview">
-                <strong id="deleteCatName"></strong>
-            </div>
+            <div class="confirm-task-preview"><strong id="deleteCatName"></strong></div>
             <div class="confirm-btns-row">
                 <button type="button" onclick="closeDeleteCatModal()" class="btn-ghost">Cancelar</button>
                 <button id="confirmDeleteCatBtn" class="btn-danger-solid">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-                Sí, eliminar
-            </button>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                    Sí, eliminar
+                </button>
             </div>
             <form id="deleteCatForm" method="POST" style="display:none;">{% csrf_token %}</form>
         </div>
     </div>
 
-    <!-- Toast de notificaciones -->
+    <!-- Crear Workspace -->
+    <div id="modalCrearWs" class="modal-overlay hidden">
+        <div class="modal-content cat-modal">
+            <div class="modal-header">
+                <h3>Crear espacio de trabajo</h3>
+                <button onclick="document.getElementById('modalCrearWs').classList.add('hidden')"
+                        class="close-panel-btn">✕</button>
+            </div>
+            <form action="{% url 'crear_workspace' %}" method="POST">
+                {% csrf_token %}
+                <div class="input-field">
+                    <label>Nombre del espacio *</label>
+                    <input type="text" name="nombre" placeholder="Ej: Proyecto Final..."
+                           required class="modal-input">
+                </div>
+                <div class="input-field">
+                    <label>Descripción <span style="color:#64748b;">(opcional)</span></label>
+                    <input type="text" name="descripcion"
+                           placeholder="¿De qué trata este equipo?" class="modal-input">
+                </div>
+                <button type="submit" class="btn-primary-solid btn-full">Crear espacio</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Unirse a Workspace -->
+    <div id="modalUnirseWs" class="modal-overlay hidden">
+        <div class="modal-content cat-modal">
+            <div class="modal-header">
+                <h3>Unirse a un equipo</h3>
+                <button onclick="document.getElementById('modalUnirseWs').classList.add('hidden')"
+                        class="close-panel-btn">✕</button>
+            </div>
+            <form action="{% url 'unirse_workspace' %}" method="POST">
+                {% csrf_token %}
+                <div class="input-field">
+                    <label>Código de acceso</label>
+                    <input type="text" name="codigo" placeholder="Ej: A3F9B2C1"
+                           required class="modal-input"
+                           style="text-transform:uppercase; letter-spacing:3px;
+                                  font-size:18px; font-weight:700; text-align:center;">
+                </div>
+                <p style="font-size:12px; color:#64748b; text-align:center; margin: -8px 0 12px;">
+                    Pídele el código al administrador del equipo.
+                </p>
+                <button type="submit" class="btn-primary-solid btn-full">Unirme al equipo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         SISTEMA DE TOASTS
+    ════════════════════════════════════════════ -->
+
+    <div id="toast-container"></div>
+
+    {% if messages %}
+    <script id="django-messages-data" type="application/json">
+    [
+        {% for message in messages %}
+            {
+                "level": "{{ message.tags|escapejs }}",
+                "text": "{{ message|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+    </script>
+    <script>
+        window._djangoMessages = JSON.parse(document.getElementById('django-messages-data').textContent);
+        console.log("Mensajes recibidos:", window._djangoMessages);
+    </script>
+    {% endif %}
+
     <div id="toast" class="toast hidden"></div>
 
     <script src="{% static 'js/dashboard.js' %}"></script>
+
     <script>
-        /* ── CATEGORÍAS: event listeners (evitan inline JS con template tags) ── */
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-cat-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.edit-cat-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
                     openEditCatModal(btn.dataset.catId, btn.dataset.catName, btn.dataset.catColor);
                 });
             });
-            document.querySelectorAll('.cat-delete-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
+
+            document.querySelectorAll('.cat-delete-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
                     confirmDeleteCat(btn.dataset.catId, btn.dataset.catName);
                 });
             });
+
+            const viewMode = document.body.dataset.viewMode;
+            if (viewMode === 'workspace') {
+                toggleWsSidebar();
+            }
+
+            if (window._djangoMessages && window._djangoMessages.length) {
+                window._djangoMessages.forEach(function (msg, i) {
+                    setTimeout(function () {
+                        let tipo = 'info';
+                        if (msg.level.includes('success')) tipo = 'success';
+                        else if (msg.level.includes('error')) tipo = 'error';
+                        else if (msg.level.includes('warning')) tipo = 'warning';
+                        showToast(msg.text, tipo);
+                    }, i * 180);
+                });
+            }
         });
 
         function openEditCatModal(id, nombre, color) {
             document.getElementById('editCatNombre').value = nombre;
             document.getElementById('editSelectedColor').value = color;
             document.getElementById('editCatForm').action = `/categorias/actualizar/${id}/`;
-
-            // Marcar el color activo en la paleta
             document.querySelectorAll('.color-swatch-edit').forEach(s => {
                 s.classList.toggle('active', s.getAttribute('data-color') === color);
             });
-
             document.getElementById('modalEditCat').classList.remove('hidden');
         }
 
@@ -461,7 +670,7 @@
         function confirmDeleteCat(id, nombre) {
             document.getElementById('deleteCatName').innerText = nombre;
             document.getElementById('deleteCatForm').action = `/categorias/eliminar/${id}/`;
-            document.getElementById('confirmDeleteCatBtn').onclick = function() {
+            document.getElementById('confirmDeleteCatBtn').onclick = function () {
                 document.getElementById('deleteCatForm').submit();
             };
             document.getElementById('confirmDeleteCatModal').classList.remove('hidden');
@@ -471,14 +680,51 @@
             document.getElementById('confirmDeleteCatModal').classList.add('hidden');
         }
 
-        // Cerrar modales de categoría con Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeEditCatModal();
                 closeDeleteCatModal();
             }
         });
-    </script>
-</body>
 
+        function toggleWsSidebar() {
+            const panel = document.getElementById('wsSidebarPanel');
+            const arrow = document.getElementById('wsArrow');
+            const toggle = document.getElementById('wsSidebarToggle');
+            panel.classList.toggle('open');
+            arrow.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        const _toastIcons = {
+            success: '✓',
+            error: '✕',
+            info: 'i',
+            warning: '!'
+        };
+
+        function showToast(text, type, duration) {
+            type = type || 'info';
+            duration = duration || 4500;
+
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'tf-toast ' + type;
+            toast.innerHTML = '<div class="tf-toast-icon">' + (_toastIcons[type] || 'i') + '</div>' +
+                '<div class="tf-toast-text">' + text + '</div>' +
+                '<div class="tf-toast-bar"></div>';
+
+            toast.addEventListener('click', function () { dismissToast(toast); });
+            container.appendChild(toast);
+            setTimeout(function () { dismissToast(toast); }, duration);
+        }
+
+        function dismissToast(toast) {
+            if (toast.classList.contains('leaving')) return;
+            toast.classList.add('leaving');
+            setTimeout(function () { toast.remove(); }, 350);
+        }
+    </script>
+
+</body>
 </html>

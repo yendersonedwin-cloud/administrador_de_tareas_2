@@ -1,0 +1,252 @@
+{% extends "dashboard.html" %}
+{% load static %}
+
+{% block main_content %}
+<div class="kb-wrapper">
+
+    <div class="kb-header">
+        <div class="kb-title-area">
+            <h1 class="kb-title">Tablero Kanban</h1>
+            <p class="kb-subtitle">{{ workspace.nombre }}</p>
+        </div>
+        <div class="kb-actions">
+            <a href="{% url 'ver_workspace' workspace.id %}" class="ws-btn ws-btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Volver al Workspace
+            </a>
+        </div>
+    </div>
+
+    {% if es_admin %}
+    <div class="kb-admin-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Como administrador puedes arrastrar cualquier tarea entre columnas para cambiar su estado.
+    </div>
+    {% endif %}
+
+    <div class="kb-board">
+
+        {# ── COLUMNA: Por Hacer ── #}
+        <div class="kb-column" id="col-todo">
+            <div class="kb-column-header todo-header">
+                <div class="kb-col-dot dot-todo"></div>
+                <h3>Por Hacer</h3>
+                <span class="kb-badge-count" id="count-todo">{{ tareas_pendientes|length }}</span>
+            </div>
+            <div class="kb-tasks-container" id="drop-todo"
+                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'todo')" ondragleave="onDragLeave(event)"{% endif %}>
+                {% for tarea in tareas_pendientes %}
+                <div class="kb-card priority-{{ tarea.prioridad|lower }}"
+                     data-task-id="{{ tarea.id }}"
+                     data-prioridad="{{ tarea.prioridad|lower }}"
+                     data-prioridad-label="{{ tarea.get_prioridad_display }}"
+                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                    <div class="kb-card-top">
+                        <span class="kb-priority-tag priority-tag-{{ tarea.prioridad|lower }}">{{ tarea.get_prioridad_display }}</span>
+                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                    </div>
+                    <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
+                    {% if tarea.descripcion %}
+                        <p class="kb-card-desc">{{ tarea.descripcion|truncatechars:70 }}</p>
+                    {% endif %}
+                    <div class="kb-card-footer">
+                        <span class="kb-user-pill">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            {{ tarea.usuario.username }}
+                        </span>
+                        {% if tarea.fecha_vencimiento %}
+                        <span class="kb-date-pill">{{ tarea.fecha_vencimiento|date:"d/m" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="kb-empty">No hay tareas pendientes</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# ── COLUMNA: En Progreso ── #}
+        <div class="kb-column" id="col-progreso">
+            <div class="kb-column-header progreso-header">
+                <div class="kb-col-dot dot-progreso"></div>
+                <h3>En Progreso</h3>
+                <span class="kb-badge-count" id="count-progreso">{{ tareas_progreso|length }}</span>
+            </div>
+            <div class="kb-tasks-container" id="drop-progreso"
+                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'progreso')" ondragleave="onDragLeave(event)"{% endif %}>
+                {% for tarea in tareas_progreso %}
+                <div class="kb-card priority-{{ tarea.prioridad|lower }}"
+                     data-task-id="{{ tarea.id }}"
+                     data-prioridad="{{ tarea.prioridad|lower }}"
+                     data-prioridad-label="{{ tarea.get_prioridad_display }}"
+                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                    <div class="kb-card-top">
+                        <span class="kb-priority-tag priority-tag-{{ tarea.prioridad|lower }}">{{ tarea.get_prioridad_display }}</span>
+                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                    </div>
+                    <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
+                    <div class="kb-card-footer">
+                        <span class="kb-user-pill">{{ tarea.usuario.username }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="kb-empty">Arrastra tareas aquí</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# ── COLUMNA: Completadas ── #}
+        <div class="kb-column" id="col-done">
+            <div class="kb-column-header done-header">
+                <div class="kb-col-dot dot-done"></div>
+                <h3>Completadas</h3>
+                <span class="kb-badge-count" id="count-done">{{ tareas_completadas|length }}</span>
+            </div>
+            <div class="kb-tasks-container" id="drop-done"
+                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'done')" ondragleave="onDragLeave(event)"{% endif %}>
+                {% for tarea in tareas_completadas %}
+                <div class="kb-card is-completed"
+                     data-task-id="{{ tarea.id }}"
+                     data-prioridad="{{ tarea.prioridad|lower }}"
+                     data-prioridad-label="{{ tarea.get_prioridad_display }}"
+                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                    <div class="kb-card-top">
+                        <span class="kb-done-check">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Finalizada
+                        </span>
+                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                    </div>
+                    <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
+                    <div class="kb-card-footer">
+                        <span class="kb-user-pill">{{ tarea.usuario.username }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="kb-empty">¡A trabajar!</div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% if es_admin %}
+<script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+const WORKSPACE_ID = {{ workspace.id }};
+let draggedCard = null;
+
+function onDragStart(e) {
+    draggedCard = e.currentTarget;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedCard.dataset.taskId);
+    setTimeout(() => draggedCard.classList.add('kb-dragging'), 0);
+}
+
+function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('kb-drop-active');
+}
+
+function onDragLeave(e) {
+    // Solo quita la clase si realmente salimos del contenedor (no de un hijo)
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove('kb-drop-active');
+    }
+}
+
+function onDrop(e, columna) {
+    e.preventDefault();
+    const container = e.currentTarget;
+    container.classList.remove('kb-drop-active');
+    if (!draggedCard) return;
+
+    draggedCard.classList.remove('kb-dragging');
+
+    const taskId = draggedCard.dataset.taskId;
+    const prioridad = draggedCard.dataset.prioridad;
+    const prioridadLabel = draggedCard.dataset.prioridadLabel;
+
+    // Quita el mensaje vacío si existe
+    const emptyMsg = container.querySelector('.kb-empty');
+    if (emptyMsg) emptyMsg.remove();
+
+    // Actualiza clases visuales de la card según columna destino
+    draggedCard.classList.remove('is-completed');
+    const topEl = draggedCard.querySelector('.kb-card-top');
+
+    if (columna === 'done') {
+        draggedCard.classList.add('is-completed');
+        const existingTag = topEl.querySelector('.kb-priority-tag');
+        if (existingTag) {
+            existingTag.outerHTML = `<span class="kb-done-check">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg> Finalizada</span>`;
+        }
+    } else {
+        // Si venía de done, restaura el tag de prioridad
+        const existingCheck = topEl.querySelector('.kb-done-check');
+        if (existingCheck) {
+            existingCheck.outerHTML = `<span class="kb-priority-tag priority-tag-${prioridad}">${prioridadLabel}</span>`;
+        }
+    }
+
+    // Mueve la card al nuevo contenedor
+    container.appendChild(draggedCard);
+
+    // Actualiza contadores de las 3 columnas
+    actualizarContadores();
+
+    // Persiste en el servidor
+    moverTarea(taskId, columna);
+    draggedCard = null;
+}
+
+function moverTarea(taskId, columna) {
+    fetch(`/workspaces/${WORKSPACE_ID}/kanban/mover/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+        body: JSON.stringify({ tarea_id: taskId, columna: columna })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.ok) console.error('Error al mover tarea:', data.error);
+    })
+    .catch(err => console.error('Error de red:', err));
+}
+
+function actualizarContadores() {
+    ['todo', 'progreso', 'done'].forEach(col => {
+        const cards = document.getElementById(`drop-${col}`).querySelectorAll('.kb-card').length;
+        document.getElementById(`count-${col}`).textContent = cards;
+    });
+}
+
+document.addEventListener('dragend', () => {
+    if (draggedCard) {
+        draggedCard.classList.remove('kb-dragging');
+        draggedCard = null;
+    }
+    document.querySelectorAll('.kb-drop-active').forEach(el => el.classList.remove('kb-drop-active'));
+});
+</script>
+{% endif %}
+
+{% endblock %}

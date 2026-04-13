@@ -1,0 +1,291 @@
+{% extends "dashboard.html" %}
+{% load static %}
+
+{% block main_content %}
+
+<div class="ws-container">
+    
+    <!-- HEADER DEL WORKSPACE -->
+    <div class="ws-header">
+        <div class="ws-header-left">
+            <div class="ws-header-info">
+                <div class="ws-icon">🚀</div>
+                <div>
+                    <h1 class="ws-title">{{ workspace.nombre }}</h1>
+                    {% if workspace.descripcion %}
+                        <p class="ws-desc">{{ workspace.descripcion }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="ws-meta">
+                <span class="ws-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Creado {{ workspace.creado_en|date:"d M Y" }}
+                </span>
+                <span class="ws-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    {{ workspace.miembros.count }} miembros
+                </span>
+                <span class="ws-badge code">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    Código: {{ workspace.codigo }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="ws-header-right">
+            <a href="{% url 'kanban_workspace' workspace.id %}" class="ws-btn" style="background: #6366f1; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Tablero Kanban
+            </a>
+            {% if es_admin %}
+                <a href="{% url 'panel_admin' workspace.id %}" class="ws-btn ws-btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.29 7 12 12 20.71 7"/>
+                        <line x1="12" y1="22" x2="12" y2="12"/>
+                    </svg>
+                    Métricas
+                </a>
+            {% endif %}
+            <a href="{% url 'dashboard' %}" class="ws-btn ws-btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- FORMULARIO CREAR TAREA (minimalista) -->
+    <div class="ws-card ws-create-card">
+        <div class="ws-card-header">
+            <span class="ws-card-icon">+</span>
+            <h3 class="ws-card-title">Nueva tarea</h3>
+        </div>
+        <form method="POST" class="ws-create-form">
+            {% csrf_token %}
+            <div class="ws-form-row">
+                <input type="text" name="titulo" placeholder="¿Qué hay que hacer?" required
+                       class="ws-input ws-input-title">
+                <select name="prioridad" class="ws-select">
+                    <option value="B">Baja</option>
+                    <option value="M" selected>Media</option>
+                    <option value="A">Alta</option>
+                </select>
+                <input type="date" name="fecha_vencimiento" class="ws-input ws-input-date">
+                <button type="submit" class="ws-btn ws-btn-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Crear
+                </button>
+            </div>
+            <div class="ws-form-row">
+                <textarea name="descripcion" rows="2" placeholder="Descripción (opcional)" 
+                          class="ws-textarea"></textarea>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTA DE TAREAS -->
+    <div class="ws-tasks-section">
+        <div class="ws-section-header">
+            <h3 class="ws-section-title">Tareas del equipo</h3>
+            <span class="ws-section-count">{{ tareas|length }} tareas</span>
+        </div>
+
+        <div class="ws-tasks-list">
+            {% for tarea in tareas %}
+            <div class="ws-task-item {% if tarea.completada %}completed{% endif %}" 
+                 data-task-id="{{ tarea.id }}">
+                
+                <!-- Checkbox / Estado -->
+                <div class="ws-task-check">
+                    {% if tarea.usuario == request.user %}
+                        <form method="POST" action="{% url 'completar_tarea_workspace' tarea.id %}" 
+                              class="ws-check-form">
+                            {% csrf_token %}
+                            <button type="submit" class="ws-check-btn {% if tarea.completada %}checked{% endif %}" 
+                                    title="Marcar como {% if tarea.completada %}pendiente{% else %}completada{% endif %}">
+                                {% if tarea.completada %}
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="ws-check-disabled {% if tarea.completada %}checked{% endif %}">
+                            {% if tarea.completada %}
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Contenido de la tarea -->
+                <div class="ws-task-content">
+                    <div class="ws-task-header">
+                        <span class="ws-task-title">{{ tarea.titulo }}</span>
+                        <div class="ws-task-badges">
+                            <span class="ws-priority ws-priority-{{ tarea.prioridad|lower }}">
+                                {{ tarea.get_prioridad_display }}
+                            </span>
+                            <span class="ws-author">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                {{ tarea.usuario.username }}
+                                {% if tarea.usuario == request.user %}
+                                    <span class="ws-self-badge">tú</span>
+                                {% endif %}
+                            </span>
+                            {% if tarea.fecha_vencimiento %}
+                                <span class="ws-date">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    {{ tarea.fecha_vencimiento|date:"d/m/Y" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if tarea.descripcion %}
+                        <p class="ws-task-desc">{{ tarea.descripcion }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Acciones (solo dueño) -->
+                {% if tarea.usuario == request.user %}
+                <div class="ws-task-actions">
+                    <button class="ws-action-icon ws-edit" onclick="abrirModalEditar({{ tarea.id }}, '{{ tarea.titulo|escapejs }}', '{{ tarea.descripcion|escapejs }}', '{{ tarea.prioridad }}', '{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}')" 
+                            title="Editar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
+                    <form method="POST" action="{% url 'eliminar_tarea_workspace' workspace.id tarea.id %}" 
+                          onsubmit="return confirm('¿Eliminar esta tarea?')" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="ws-action-icon ws-delete" title="Eliminar">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6"/><path d="M14 11v6"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="ws-task-readonly">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="ws-empty-state">
+                <div class="ws-empty-icon">📭</div>
+                <p class="ws-empty-title">No hay tareas</p>
+                <p class="ws-empty-sub">Crea la primera tarea usando el formulario de arriba</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR TAREA (minimalista) -->
+<div id="modalEditar" class="ws-modal hidden">
+    <div class="ws-modal-overlay" onclick="cerrarModalEditar()"></div>
+    <div class="ws-modal-container">
+        <div class="ws-modal-header">
+            <h3>Editar tarea</h3>
+            <button onclick="cerrarModalEditar()" class="ws-modal-close">✕</button>
+        </div>
+        <form method="POST" id="formEditar" class="ws-modal-form">
+            {% csrf_token %}
+            <input type="hidden" name="editar_tarea" value="1">
+            <input type="hidden" name="tarea_id" id="edit_tarea_id">
+            
+            <div class="ws-form-group">
+                <label>Título</label>
+                <input type="text" name="titulo" id="edit_titulo" required class="ws-input">
+            </div>
+            
+            <div class="ws-form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion" id="edit_descripcion" rows="3" class="ws-textarea"></textarea>
+            </div>
+            
+            <div class="ws-form-row-2">
+                <div class="ws-form-group">
+                    <label>Prioridad</label>
+                    <select name="prioridad" id="edit_prioridad" class="ws-select">
+                        <option value="B">Baja</option>
+                        <option value="M">Media</option>
+                        <option value="A">Alta</option>
+                    </select>
+                </div>
+                <div class="ws-form-group">
+                    <label>Fecha vencimiento</label>
+                    <input type="date" name="fecha_vencimiento" id="edit_fecha" class="ws-input">
+                </div>
+            </div>
+            
+            <div class="ws-modal-actions">
+                <button type="button" onclick="cerrarModalEditar()" class="ws-btn ws-btn-secondary">Cancelar</button>
+                <button type="submit" class="ws-btn ws-btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function abrirModalEditar(id, titulo, descripcion, prioridad, fecha) {
+    document.getElementById('edit_tarea_id').value = id;
+    document.getElementById('edit_titulo').value = titulo;
+    document.getElementById('edit_descripcion').value = descripcion || '';
+    document.getElementById('edit_prioridad').value = prioridad;
+    document.getElementById('edit_fecha').value = fecha || '';
+    document.getElementById('modalEditar').classList.remove('hidden');
+}
+
+function cerrarModalEditar() {
+    document.getElementById('modalEditar').classList.add('hidden');
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModalEditar();
+    }
+});
+</script>
+
+{% endblock %}

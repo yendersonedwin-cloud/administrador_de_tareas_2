@@ -1,0 +1,464 @@
+{% extends "dashboard.html" %}
+{% load static %}
+
+{# ═══════════════════════════════════════════════════════════════
+   templates/workspaces/panel_admin.html
+   ════════════════════════════════════════════════════════════════
+   Panel de métricas del workspace. EXCLUSIVO para el administrador.
+   ═══════════════════════════════════════════════════════════════ #}
+
+{% block page_title %}Métricas — {{ workspace.nombre }} — TaskFlow{% endblock %}
+
+{% block main_content %}
+<div class="ws-container admin-panel">
+
+  {# ── HEADER ── #}
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <a href="{% url 'ver_workspace' workspace.id %}" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Volver
+      </a>
+      <div class="admin-header-titles">
+        <h1 class="admin-title">Métricas del equipo</h1>
+        <p class="admin-subtitle">{{ workspace.nombre }}</p>
+      </div>
+    </div>
+  </div>
+
+  {# ── FILA SUPERIOR: 4 stat cards ── #}
+  <div class="admin-stats-row">
+
+    <div class="admin-stat-card accent-card">
+      <div class="accent-card-body">
+        <div>
+          <span class="admin-stat-lbl">Productividad general</span>
+          <span class="admin-stat-num accent-num">{{ productividad_grupo }}%</span>
+        </div>
+        <div class="accent-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+      </div>
+      <div class="admin-progress-bar">
+        <div class="admin-progress-fill" style="width: {{ productividad_grupo }}%;"></div>
+      </div>
+    </div>
+
+    <div class="admin-stat-card simple-card">
+      <div class="simple-card-icon blue-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="admin-stat-num">{{ total_grupo }}</span>
+      <span class="admin-stat-lbl">Tareas totales</span>
+    </div>
+
+    <div class="admin-stat-card simple-card">
+      <div class="simple-card-icon green-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <span class="admin-stat-num green">{{ hechas_grupo }}</span>
+      <span class="admin-stat-lbl">Completadas</span>
+    </div>
+
+    <div class="admin-stat-card simple-card">
+      <div class="simple-card-icon amber-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <span class="admin-stat-num amber">{{ total_grupo|add:"-"|add:hechas_grupo }}</span>
+      <span class="admin-stat-lbl">Pendientes</span>
+    </div>
+
+  </div>
+
+  {# ── FILA INFERIOR: tabla de miembros + historial (50/50) ── #}
+  <div class="admin-main-grid">
+
+    {# Tabla de miembros #}
+    <div class="admin-panel-card">
+      <div class="admin-card-header">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Rendimiento por miembro</span>
+      </div>
+      <div class="admin-member-table">
+        <div class="admin-table-header">
+          <span>Miembro</span>
+          <span>Total</span>
+          <span>Hechas</span>
+          <span>Pend.</span>
+          <span>Progreso</span>
+        </div>
+        {% for m in miembros_data %}
+        <div class="admin-table-row">
+          <div class="admin-member-info">
+            <div class="admin-avatar">{{ m.usuario.username|first|upper }}</div>
+            <div class="admin-member-texts">
+              <span class="admin-member-name">{{ m.usuario.username }}</span>
+              {% if m.usuario == workspace.admin %}
+              <span class="admin-badge">Admin</span>
+              {% endif %}
+            </div>
+          </div>
+          <span class="admin-cell">{{ m.total_tareas }}</span>
+          <span class="admin-cell green">{{ m.tareas_hechas }}</span>
+          <span class="admin-cell amber">{{ m.pendientes }}</span>
+          <div class="admin-cell-progress">
+            <div class="admin-mini-bar">
+              <div class="admin-mini-fill" style="width: {{ m.productividad }}%;"></div>
+            </div>
+            <span class="admin-pct">{{ m.productividad }}%</span>
+          </div>
+        </div>
+        {% empty %}
+        <p class="admin-empty">No hay miembros con tareas aún.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Historial reciente #}
+    <div class="admin-panel-card">
+      <div class="admin-card-header">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Actividad reciente</span>
+      </div>
+      {% if historial %}
+      <div class="admin-historial">
+        {% for tarea in historial %}
+        <div class="admin-hist-item">
+          <div class="admin-avatar sm">{{ tarea.usuario.username|first|upper }}</div>
+          <div class="admin-hist-info">
+            <span class="admin-hist-titulo">{{ tarea.titulo }}</span>
+            <span class="admin-hist-meta">
+              {{ tarea.usuario.username }} ·
+              {% if tarea.completada %}<span class="green">Completada</span>
+              {% else %}<span class="amber">Pendiente</span>{% endif %}
+              · {{ tarea.updated_at|date:"d M, H:i" }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="admin-empty">Sin actividad reciente.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+/* ══════════════════════════════════════════════
+   PANEL ADMIN — DARK, OCUPA TODO EL ESPACIO
+   ══════════════════════════════════════════════ */
+
+body:has(.admin-panel) .main-content,
+body:has(.admin-panel) .ws-content,
+body:has(.admin-panel) .content-area,
+body:has(.admin-panel) main {
+  background: #f1f5ff !important;
+}
+
+.ws-container.admin-panel {
+  padding: 24px 32px;
+  background: #f3ffe4;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* ── Header ── */
+.admin-header { flex-shrink: 0; }
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff;
+  font-size: 12px;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-back:hover { color: #10b981; border-color: #10b98150; }
+.admin-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+  line-height: 1.2;
+}
+.admin-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+/* ── Stat row: 4 cards ── */
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1fr;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.admin-stat-card {
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
+/* Card accent */
+.accent-card {
+  background: #1a2e22;
+  border-color: #10b98140;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.accent-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.accent-icon {
+  width: 50px;
+  height: 50px;
+  background: #10b98115;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.admin-stat-lbl {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+  display: block;
+}
+.admin-stat-num {
+  font-size: 34px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1;
+  display: block;
+}
+.admin-stat-num.accent-num { font-size: 30px; color: #10b981; }
+.admin-stat-num.green      { color: #10b981; }
+.admin-stat-num.amber      { color: #f59e0b; }
+.admin-progress-bar {
+  height: 6px;
+  background: #253045;
+  border-radius: 3px;
+}
+.admin-progress-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 3px;
+  transition: width 0.7s ease;
+}
+
+/* Cards simples */
+.simple-card {
+  background: #1e293b;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.simple-card .admin-stat-num { font-size: 36px; }
+.simple-card .admin-stat-lbl { margin-bottom: 0; }
+.simple-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.blue-icon  { background: #1e3a5f; }
+.blue-icon  svg { stroke: #60a5fa; }
+.green-icon { background: #14291e; }
+.green-icon svg { stroke: #10b981; }
+.amber-icon { background: #2d1f07; }
+.amber-icon svg { stroke: #f59e0b; }
+
+/* ── Grid principal 50/50 ── */
+.admin-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+.admin-panel-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  flex-shrink: 0;
+}
+
+/* ── Avatar ── */
+.admin-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #059669;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.admin-avatar.sm { width: 26px; height: 26px; font-size: 10px; border-radius: 6px; }
+
+/* ── Tabla de miembros ── */
+.admin-member-table { background: #1e293b; flex: 1; overflow-y: auto; }
+.admin-table-header {
+  display: grid;
+  grid-template-columns: 2fr 52px 64px 56px 1fr;
+  padding: 9px 16px;
+  background: #162032;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid #334155;
+  position: sticky;
+  top: 0;
+}
+.admin-table-row {
+  display: grid;
+  grid-template-columns: 2fr 52px 64px 56px 1fr;
+  padding: 12px 16px;
+  align-items: center;
+  border-bottom: 1px solid #253045;
+  transition: background 0.15s;
+}
+.admin-table-row:last-child { border-bottom: none; }
+.admin-table-row:hover { background: #253045; }
+.admin-member-info { display: flex; align-items: center; gap: 10px; }
+.admin-member-texts { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.admin-member-name { font-size: 13px; font-weight: 500; color: #e2e8f0; }
+.admin-badge {
+  font-size: 9px;
+  background: #10b98115;
+  color: #10b981;
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-weight: 600;
+  border: 1px solid #10b98130;
+}
+.admin-cell { font-size: 14px; color: #94a3b8; }
+.admin-cell.green { color: #10b981; font-weight: 600; }
+.admin-cell.amber { color: #f59e0b; font-weight: 600; }
+.admin-cell-progress { display: flex; align-items: center; gap: 8px; }
+.admin-mini-bar { flex: 1; height: 5px; background: #334155; border-radius: 3px; }
+.admin-mini-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 3px;
+  transition: width 0.7s ease;
+}
+.admin-pct { font-size: 11px; color: #64748b; min-width: 34px; text-align: right; }
+
+/* ── Historial ── */
+.admin-historial { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
+.admin-hist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #253045;
+  transition: background 0.15s;
+}
+.admin-hist-item:last-child { border-bottom: none; }
+.admin-hist-item:hover { background: #253045; }
+.admin-hist-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.admin-hist-titulo {
+  font-size: 13px;
+  color: #e2e8f0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-hist-meta { font-size: 11px; color: #64748b; }
+.admin-hist-meta .green { color: #10b981; font-weight: 500; }
+.admin-hist-meta .amber { color: #f59e0b; font-weight: 500; }
+
+/* ── Vacío ── */
+.admin-empty { font-size: 13px; color: #475569; text-align: center; padding: 24px; margin: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .admin-stats-row { grid-template-columns: 1fr 1fr; }
+  .accent-card { grid-column: 1 / -1; }
+}
+@media (max-width: 800px) {
+  .admin-main-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .ws-container.admin-panel { padding: 16px 18px; }
+  .admin-stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .admin-table-header { display: none; }
+  .admin-table-row { grid-template-columns: 1fr auto auto; gap: 8px; }
+}
+</style>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'dashboard.html' %} {% load static %} {% block content %}
+{% extends 'dashboard.html' %} {% load static %} {% block main_content %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 
 <div class="profile-main-wrapper">
@@ -30,37 +30,39 @@
     </div>
 
     <div class="settings-full-card">
-        <h3 style="margin-top:0; font-size:1.5rem;">Configuración de la Cuenta</h3>
-        <hr style="border:0; border-top:1px solid #334155; margin: 20px 0 40px;">
+        <h3 class="config-title">Configuración de la Cuenta</h3>
+        <hr class="divider">
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="form-row-double">
                 <div class="input-field">
-                    <label>Nombre de Usuario</label> {{ u_form.username }}
+                    <label>NOMBRE DE USUARIO</label> {{ u_form.username }}
                 </div>
                 <div class="input-field">
-                    <label>Correo Electrónico</label> {{ u_form.email }}
+                    <label>CORREO ELECTRÓNICO</label> {{ u_form.email }}
                 </div>
             </div>
+
             <div class="form-row-double">
                 <div class="input-field">
-                    <label>Foto de Perfil</label>
+                    <label>FOTO DE PERFIL</label>
                     <div class="modern-upload-wrapper">
                         <div class="custom-file-upload">
                             {{ p_form.imagen }}
-
+                            <span class="btn-select-file">Cambiar foto</span>
                         </div>
+                        <p class="file-name-info">{{ user.perfil.imagen.name|truncatechars:20 }}</p>
                     </div>
                 </div>
 
                 <div class="input-field">
-                    <label>Sobre Mí (Biografía)</label> {{ p_form.bio }}
+                    <label>SOBRE MÍ (BIOGRAFÍA)</label> {{ p_form.bio }}
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end;">
+            <div class="button-container">
                 <button type="submit" class="save-button-full">Actualizar Perfil</button>
             </div>
         </form>
