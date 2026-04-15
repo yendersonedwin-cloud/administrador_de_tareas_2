@@ -1,115 +1,190 @@
-/* --- 1. ESTRUCTURA Y CONTENEDOR PRINCIPAL --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+body, html, input, textarea, button, select, label {
+    font-family: 'Poppins', sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+}
+
+:root {
+    --green:          #10b981;
+    --green-dark:     #059669;
+    --green-glow:     rgba(16, 185, 129, 0.12);
+
+    --hero-bg:        #ffffff;
+    --card-bg:        #ffffff;
+    --card-surface:   #f8fffe;
+    --card-hover:     #f0fdf9;
+    --card-border:    rgba(16, 185, 129, 0.15);
+    --card-divider:   #f0fdf9;
+
+    --text-primary:   #111827;
+    --text-secondary: #6b7280;
+    --text-muted:     #9ca3af;
+
+    --shadow-sm:  0 2px 12px rgba(16,185,129,0.07);
+    --shadow-md:  0 4px 20px rgba(16,185,129,0.10);
+}
 
 .profile-main-wrapper {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 30px;
+    padding: 24px 32px;
     box-sizing: border-box;
     min-height: 100vh;
+    background: linear-gradient(
+        160deg,
+        #e8faf3 0%,
+        #d5eee5 40%,
+        #d2f0e3 100%
+    );
 }
 
-
-/* --- 2. BANNER SUPERIOR (HERO CARD) --- */
-
+/* ── HERO CARD ── */
 .profile-hero-card {
-    background: #1e293b;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
     border-radius: 16px;
-    padding: 20px 40px;
-    margin-bottom: 25px;
-    border: 1px solid #334155;
+    padding: 28px 36px;
+    margin-bottom: 20px;
+    border: 4px solid rgba(6, 172, 56, 0.39);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #f8fafc;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .3s ease;
+}
+.profile-hero-card:hover {
+    box-shadow: var(--shadow-md);
 }
 
-.user-info-large {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
+/* ── AVATAR ── */
 .avatar-container img {
-    width: 80px;
-    height: 80px;
+    width: 80px; height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #10b981;
+    border: 3px solid var(--green);
+    box-shadow: 0 0 0 5px rgba(16,185,129,.12), 0 2px 8px rgba(0,0,0,.08);
+    transition: box-shadow .3s ease, transform .3s ease;
+}
+.avatar-container img:hover {
+    box-shadow: 0 0 0 6px rgba(16,185,129,.22), 0 4px 16px rgba(0,0,0,.10);
+    transform: scale(1.04);
 }
 
+/* ── STATS ── */
 .stats-grid-expanded {
     display: flex;
     gap: 40px;
+    position: relative;
+    z-index: 1;
 }
-
 .stat-item {
     text-align: center;
+    position: relative;
 }
-
+.stat-item + .stat-item {
+    border-left: 1px solid #e5e7eb;
+    padding-left: 40px;
+}
 .stat-value {
     display: block;
     font-size: 1.6rem;
     font-weight: 800;
+    color: var(--green);
+    line-height: 1.1;
 }
-
 .stat-desc {
-    font-size: 0.75rem;
-    color: #94a3b8;
+    font-size: 0.72rem;
+    color: var(--text-muted);
     text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-top: 4px;
+    font-weight: 600;
 }
 
-
-/* --- 3. TARJETA DE CONFIGURACIÓN OSCURA --- */
-
+/* ── SETTINGS CARD ── */
 .settings-full-card {
-    background: #1e293b !important;
+    position: relative;
+    background: #ffffff !important;
     border-radius: 16px;
-    padding: 30px 40px;
-    border: 1px solid #334155;
-    color: #f8fafc;
+    padding: 32px 40px;
+    border: 4px solid rgba(6, 172, 56, 0.39) !important;
+    border-top: 2.5px solid var(--green) !important;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .3s ease;    
+}
+.settings-full-card:hover {
+    box-shadow: var(--shadow-md);
 }
 
 .config-title {
     margin: 0;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .divider {
     border: 0;
-    border-top: 1px solid #334155;
-    margin: 20px 0 30px;
+    border-top: 1px solid #f0fdf9;
+    margin: 16px 0 24px;
 }
 
-
-/* --- 4. FILAS DOBLES (FOTO Y BIO LADO A LADO) --- */
-
+/* ── FORM ── */
 .form-row-double {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    margin-bottom: 25px;
+    gap: 22px;
+    margin-bottom: 22px;
 }
 
 .input-field label {
     display: block;
-    color: #94a3b8;
-    margin-bottom: 10px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: .08em;
 }
 
 .input-field input,
 .input-field textarea {
     width: 100%;
-    background: #0f172a !important;
-    border: 1px solid #334155;
-    padding: 12px;
-    border-radius: 8px;
-    color: #ffffff !important;
+    background: #f8fffe !important;
+    border: 1.5px solid #d1fae5;
+    padding: 11px 14px;
+    border-radius: 9px;
+    color: #111827 !important;
     outline: none;
     box-sizing: border-box;
+    font-size: 0.875rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.input-field input::placeholder,
+.input-field textarea::placeholder {
+    color: #9ca3af;
+}
+
+.input-field input:hover,
+.input-field textarea:hover {
+    border-color: #6ee7b7;
+    background: #f0fdf9 !important;
+}
+
+.input-field input:focus,
+.input-field textarea:focus {
+    border-color: var(--green) !important;
+    background: #f0fdf9 !important;
+    box-shadow: 0 0 0 3px rgba(16,185,129,.10);
+    color: #111827 !important;
 }
 
 .input-field textarea {
@@ -117,45 +192,27 @@
     resize: none;
 }
 
-
-/* --- 5. CUADRO DE FOTO DE PERFIL (SOLUCIÓN FINAL DE ALINEACIÓN Y VISIBILIDAD) --- */
-
-
-/* Ocultamos links y textos basura de Django */
-
 .input-field a,
 .input-field span,
 .file-name-info,
-.input-field br {
-    display: none !important;
-}
+.input-field br { display: none !important; }
 
-
-/* Hacemos el contenedor transparente para borrar "Actualmente:" */
-
-.input-field {
-    color: transparent !important;
-}
-
-
-/* Forzamos que "FOTO DE PERFIL" y "MODIFICAR:" sean visibles y grises */
+.input-field { color: transparent !important; }
 
 .input-field label,
 .input-field strong {
-    color: #94a3b8 !important;
+    color: var(--text-secondary) !important;
     display: block !important;
     visibility: visible !important;
-    /* Anula la transparencia del padre */
-    margin-bottom: 8px;
-    font-size: 0.8rem;
+    margin-bottom: 7px;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: .08em;
     text-align: left;
 }
 
-
-/* Contenedor del input: alineado a la izquierda */
-
+/* ── FILE UPLOAD ── */
 .custom-file-upload {
     display: block !important;
     background: transparent !important;
@@ -164,66 +221,91 @@
     margin: 0 !important;
     width: 100%;
 }
-
-
-/* Input de archivo: mismo diseño que el campo de "Nombre de Usuario" */
-
 .custom-file-upload input[type="file"] {
     width: 100%;
-    background: #0f172a !important;
-    border: 1px solid #334155;
-    border-radius: 8px;
+    background: #f8fffe !important;
+    border: 1.5px dashed #a7f3d0;
+    border-radius: 9px;
     padding: 10px 12px;
-    color: #94a3b8 !important;
-    font-size: 0.85rem;
+    color: var(--text-secondary) !important;
+    font-size: 0.82rem;
     cursor: pointer;
     box-sizing: border-box;
     display: block;
-    visibility: visible !important;
+    transition: border-color .2s ease, background .2s ease;
 }
-
-
-/* Estilo del botón interno de "Seleccionar archivo" */
-
+.custom-file-upload input[type="file"]:hover {
+    border-color: var(--green);
+    background: #f0fdf9 !important;
+}
 .custom-file-upload input[type="file"]::-webkit-file-upload-button {
-    background: white;
-    color: black;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 10px;
-    margin-right: 10px;
-    font-weight: 600;
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    border-radius: 7px;
+    padding: 6px 14px;
+    margin-right: 14px;
+    font-weight: 700;
+    font-size: 0.72rem;
     cursor: pointer;
+    transition: background .2s ease;
+    letter-spacing: .04em;
+    text-transform: uppercase;
 }
-
-
-/* Ocultamos botones adicionales */
-
-.btn-select-file {
-    display: none !important;
+.custom-file-upload input[type="file"]::-webkit-file-upload-button:hover {
+    background: #a7f3d0;
 }
+.btn-select-file { display: none !important; }
 
-
-/* --- 6. BOTÓN DE ACTUALIZACIÓN --- */
-
+/* ── SAVE BUTTON ── */
 .button-container {
     display: flex;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 14px;
 }
-
 .save-button-full {
-    background: #10b981;
-    color: white;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
     border: none;
-    padding: 12px 35px;
-    border-radius: 8px;
-    font-weight: bold;
+    padding: 11px 36px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: .04em;
     cursor: pointer;
-    transition: 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(16,185,129,.30);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.save-button-full:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16,185,129,.40);
+}
+.save-button-full:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(16,185,129,.18);
 }
 
-.save-button-full:hover {
-    background: #059669;
-    transform: translateY(-1px);
+/* ── PROGRESS BAR ── */
+.prod-bar-container {
+    width: 100px; height: 7px;
+    background: #d1fae5;
+    border-radius: 10px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.prod-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, #34d399 100%);
+    border-radius: 10px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── USER INFO ── */
+.user-info-large {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }

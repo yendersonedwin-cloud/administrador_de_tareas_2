@@ -284,10 +284,7 @@ def mover_tarea_kanban(request, workspace_id):
     # 2. Obtener la tarea
     tarea = get_object_or_404(Tareas, id=tarea_id, workspace=workspace)
 
-    # 3. Validar permisos (Admin del workspace o usuario asignado)
-    if request.user != workspace.usuario and request.user != tarea.asignado_a:
-        return JsonResponse({'ok': False, 'error': 'Sin permiso.'}, status=403)
- 
+
     # 4. Sincronizar campos según tu modelo Tareas
     if columna == 'todo':
         tarea.en_progreso = False
@@ -303,8 +300,11 @@ def mover_tarea_kanban(request, workspace_id):
         tarea.estado = 'DONE'
  
     # 5. GUARDAR (Aquí es donde ocurre la magia en la BD)
-    tarea.save()
-    
+    try:
+        tarea.save()
+        print("¡Guardado!")
+    except Exception as e:
+        print(f"ERROR FATAL DE BD: {e}")
     return JsonResponse({'ok': True})
 
 @login_required
