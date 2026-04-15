@@ -9,6 +9,7 @@ Los estados de Kanban se mantienen entre sesiones.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 from django.http import JsonResponse
 from django.db.models import Case, When, Value, IntegerField
 
@@ -105,13 +106,6 @@ def salir_workspace(request, ws_id):
 
 @login_required
 def ver_workspace(request, ws_id):
-    """
-    Vista ÚNICA y principal del workspace.
-    - Verifica que el usuario sea miembro
-    - Muestra TODAS las tareas del workspace ordenadas por estado
-    - Cada usuario SOLO puede editar/eliminar las suyas
-    - Formulario para crear nuevas tareas
-    """
     ws = get_object_or_404(Workspace, pk=ws_id)
     
     # 🔒 Verificar acceso
@@ -119,9 +113,8 @@ def ver_workspace(request, ws_id):
         messages.error(request, 'No tienes acceso a este workspace.')
         return redirect('dashboard')
     
-    # Obtener todas las tareas del workspace ordenadas por estado
-    # Primero las pendientes, luego en progreso, luego completadas
-    tareas = Tareas.objects.filter(workspace=ws).select_related('usuario', 'categoria').annotate(
+    # Obtener todas las tareas del workspace
+    tareas = Tareas.objects.filter(workspace=ws).select_related('usuario', 'categoria', 'asignado_a').annotate(
         estado_order=Case(
             When(completada=True, then=Value(3)),
             When(en_progreso=True, then=Value(2)),
@@ -134,32 +127,31 @@ def ver_workspace(request, ws_id):
     if request.method == 'POST':
         if request.POST.get('editar_tarea') == '1':
             tarea_id = request.POST.get('tarea_id')
-            tarea = get_object_or_404(Tareas, pk=tarea_id, usuario=request.user, workspace=ws)
-            form = TareaForm(request.POST, instance=tarea)
+            tarea = get_object_or_404(Tareas, pk=tarea_id, workspace=ws)
+            # Pasamos el workspace al form para que valide los miembros
+            form = TareaForm(request.POST, instance=tarea, workspace=ws)
             if form.is_valid():
                 form.save()
                 messages.success(request, f'✅ Tarea "{tarea.titulo}" actualizada.')
                 return redirect('ver_workspace', ws_id=ws_id)
-            else:
-                messages.error(request, '❌ Error al actualizar la tarea. Revisa los datos e inténtalo de nuevo.')
         else:
-            form = TareaForm(request.POST)
+            # PARA CREAR TAREA: Pasamos el workspace para que el selector funcione
+            form = TareaForm(request.POST, workspace=ws)
             if form.is_valid():
                 tarea = form.save(commit=False)
                 tarea.usuario = request.user
                 tarea.workspace = ws
-                # Asegurar estado inicial correcto
-                tarea.completada = False
-                tarea.en_progreso = False
+                asignado_id = request.POST.get('asignado_a')
+                if asignado_id:
+                    tarea.asignado_a_id = asignado_id
+                    
                 tarea.save()
                 messages.success(request, f'✅ Tarea "{tarea.titulo}" creada.')
                 return redirect('ver_workspace', ws_id=ws_id)
-            else:
-                messages.error(request, '❌ Error al crear la tarea. Revisa los datos.')
     else:
-        form = TareaForm()
+        # GET: Creamos el form filtrado por los miembros de este equipo
+        form = TareaForm(workspace=ws)
     
-    # Contexto para el sidebar
     user_workspaces = Workspace.objects.filter(miembros=request.user)
     
     context = {
@@ -173,8 +165,8 @@ def ver_workspace(request, ws_id):
         'fecha_hoy': None,
     }
     
+    # OJO: Según tu código, el HTML que se usa es 'workspaces/workspace.html'
     return render(request, 'workspaces/workspace.html', context)
-
 
 # ============================================================
 # COMPLETAR TAREA (AJAX)
@@ -183,7 +175,7 @@ def ver_workspace(request, ws_id):
 @login_required
 def completar_tarea_workspace(request, tarea_id):
     """Cambia el estado de una tarea (solo el dueño). Soporta AJAX y formularios normales."""
-    tarea = get_object_or_404(Tareas, id=tarea_id, usuario=request.user)
+    tarea = get_object_or_404(Tareas, Q(usuario=request.user) | Q(asignado_a=request.user), id=tarea_id)
     
     if request.method == 'POST':
         # Si estaba completada, vuelve a pendiente
@@ -276,43 +268,44 @@ def panel_admin(request, ws_id):
 # ============================================================
 # MOVER TAREA EN KANBAN (AJAX)
 # ============================================================
-
 @login_required
 @require_POST
 def mover_tarea_kanban(request, workspace_id):
+    # 1. Obtener el espacio de trabajo
     workspace = get_object_or_404(Workspace, id=workspace_id)
- 
-    # Solo el admin puede mover tareas
-    if request.user != workspace.admin:
-        return JsonResponse({'ok': False, 'error': 'Solo el administrador puede mover tareas.'}, status=403)
  
     try:
         data = json.loads(request.body)
         tarea_id = data.get('tarea_id')
-        columna  = data.get('columna')
+        columna  = data.get('columna') # Recibimos 'todo', 'progreso' o 'done'
     except (json.JSONDecodeError, KeyError):
         return JsonResponse({'ok': False, 'error': 'Datos inválidos.'}, status=400)
  
-    if columna not in ('todo', 'progreso', 'done'):
-        return JsonResponse({'ok': False, 'error': 'Columna inválida.'}, status=400)
- 
+    # 2. Obtener la tarea
     tarea = get_object_or_404(Tareas, id=tarea_id, workspace=workspace)
+
+    # 3. Validar permisos (Admin del workspace o usuario asignado)
+    if request.user != workspace.usuario and request.user != tarea.asignado_a:
+        return JsonResponse({'ok': False, 'error': 'Sin permiso.'}, status=403)
  
+    # 4. Sincronizar campos según tu modelo Tareas
     if columna == 'todo':
         tarea.en_progreso = False
         tarea.completada  = False
+        tarea.estado = 'TODO' # IMPORTANTE: En mayúsculas como tus CHOICES
     elif columna == 'progreso':
         tarea.en_progreso = True
         tarea.completada  = False
+        tarea.estado = 'PROG'
     elif columna == 'done':
         tarea.en_progreso = False
         tarea.completada  = True
+        tarea.estado = 'DONE'
  
+    # 5. GUARDAR (Aquí es donde ocurre la magia en la BD)
     tarea.save()
+    
     return JsonResponse({'ok': True})
-
-
-
 
 @login_required
 def eliminar_workspace(request, ws_id):

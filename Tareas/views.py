@@ -78,6 +78,22 @@ def lista_tareas(request):
     fecha     = timezone.now()
     fecha_hoy = fecha.strftime('%A, %B ') + str(fecha.day) + ', ' + str(fecha.year)
 
+# ... (código anterior igual)
+
+    workspace_actual = None
+    
+    # TRUCO DE INGENIERÍA: Si el ID no viene por parámetro, lo sacamos de la URL
+    path_parts = request.path.split('/') # Divide la URL: ['', 'workspace', '6', '']
+    url_id = None
+    
+    for part in path_parts:
+        if part.isdigit(): # Busca el primer número que encuentre en la URL
+            url_id = part
+            break
+
+    if url_id:
+        workspace_actual = get_object_or_404(Workspace, id=url_id)
+
     context = {
         'tareas':           tareas,
         'categorias':       categorias,
@@ -85,22 +101,34 @@ def lista_tareas(request):
         'cat_activa':       int(cat_id) if cat_id else None,
         'categoria_activa': categoria_activa,
         'fecha_hoy':        fecha_hoy,
-        'user_workspaces':  user_workspaces,  # ← nuevo
+        'user_workspaces':  user_workspaces,
+        'workspace':        workspace_actual, # AHORA SÍ TENDRÁ EL OBJETO
+        'form': TareaForm(workspace=workspace_actual),
     }
     return render(request, 'dashboard.html', context)
-
 
 @login_required
 def crear_tarea(request):
     if request.method == 'POST':
-        form = TareaForm(request.POST)
+        # Buscamos si el formulario envió un ID de workspace
+        workspace_id = request.POST.get('workspace_id')
+        workspace = None
+        if workspace_id:
+            workspace = get_object_or_404(Workspace, id=workspace_id)
+
+        # Le pasamos los datos del POST y el workspace al Form
+        form = TareaForm(request.POST, workspace=workspace)
+        
         if form.is_valid():
-            tarea         = form.save(commit=False)
-            tarea.usuario = request.user
-            tarea.save()
+            tarea = form.save(commit=False)
+            tarea.usuario = request.user # Creador
+            if workspace:
+                tarea.workspace = workspace # Asignamos el equipo
+            tarea.save() # Aquí se guarda el 'asignado_a' automáticamente
         else:
             print("Error al crear tarea:", form.errors)
-    return redirect('dashboard')
+            
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 
 
 @login_required

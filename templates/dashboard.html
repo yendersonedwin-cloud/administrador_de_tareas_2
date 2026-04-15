@@ -256,22 +256,34 @@
                 <span class="plus-sign">+</span>
                 <span class="placeholder-text">Agregar una nueva tarea...</span>
             </div>
-            <form action="{% url 'crear_tarea' %}" method="POST"
-                  class="quick-add-form hidden" id="quickAddForm">
+            <form action="{% url 'crear_tarea' %}" method="POST" class="quick-add-form hidden" id="quickAddForm">
                 {% csrf_token %}
-                <span class="plus-sign-form">+</span>
-                <input type="text" name="titulo" id="quickAddInput"
-                       placeholder="What needs to be done?" required autofocus>
-                {% if view_mode == 'category' and categoria_activa %}
-                    <input type="hidden" name="categoria" value="{{ categoria_activa.id }}">
+                
+                {% if workspace %}
+                    <input type="hidden" name="workspace_id" value="{{ workspace.id }}">
                 {% endif %}
-                <p class="quick-add-hint">Press <kbd>Enter</kbd> to create • <kbd>Esc</kbd> to cancel</p>
+
+                <span class="plus-sign-form">+</span>
+                
+                <input type="text" name="titulo" id="quickAddInput" placeholder="¿Qué hay que hacer?" required autofocus style="flex-grow: 1;">
+
+                {% if workspace %}
+                    <select name="asignado_a" class="form-select-sm" style="background: #1a1d21; color: white; border: 1px solid #3d4450; border-radius: 5px; padding: 5px;">
+                        <option value="">👤 Asignar a...</option>
+                        {% for miembro in workspace.miembros.all %}
+                            <option value="{{ miembro.id }}">{{ miembro.username }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+
+                <p class="quick-add-hint">Press <kbd>Enter</kbd> to create</p>
             </form>
+            
         </div>
         {% endif %}
 
         <!-- Lista de tareas -->
-        <div class="tasks-container" id="tasksContainer">
+        <div  class="tasks-container" id="tasksContainer">
             {% for tarea in tareas %}
             <div class="task-card {% if tarea.completada %}task-completed{% endif %}"
                  data-id="{{ tarea.id }}"

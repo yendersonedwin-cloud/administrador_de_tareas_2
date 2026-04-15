@@ -19,6 +19,6 @@ urlpatterns = [
     path('tarea/<int:tarea_id>/completar/', views.completar_tarea_workspace, name='completar_tarea_workspace'),
     path('<int:ws_id>/tarea/<int:tarea_id>/eliminar/', views.eliminar_tarea_workspace, name='eliminar_tarea_workspace'),
 
-    path('workspaces/<int:workspace_id>/kanban/',        views.kanban_workspace,    name='kanban_workspace'),
-    path('workspaces/<int:workspace_id>/kanban/mover/',  views.mover_tarea_kanban,  name='mover_tarea_kanban'),
+    path('<int:workspace_id>/kanban/', views.kanban_workspace, name='kanban_workspace'),
+    path('<int:workspace_id>/kanban/mover/', views.mover_tarea_kanban, name='mover_tarea_kanban'),
 ]

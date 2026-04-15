@@ -13,14 +13,12 @@ urlpatterns = [
     # Auth: login, logout, registro — con prefijo /accounts/
     # DEBE ir antes que Tareas para que login funcione
     path('accounts/', include('usuarios.urls')),
+    path('workspace/', include('workspaces.urls')),
+    path('categorias/', include('categorias.urls')),
 
     # Dashboard y CRUD de tareas — en la raíz /
     path('', include('Tareas.urls')),
 
-    # CRUD de categorías
-    path('categorias/', include('categorias.urls')),
-
-    path('workspace/', include('workspaces.urls')),
 ]
 
 if settings.DEBUG:

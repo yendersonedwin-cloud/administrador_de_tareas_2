@@ -40,16 +40,16 @@
                 <span class="kb-badge-count" id="count-todo">{{ tareas_pendientes|length }}</span>
             </div>
             <div class="kb-tasks-container" id="drop-todo"
-                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'todo')" ondragleave="onDragLeave(event)"{% endif %}>
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'todo')" ondragleave="onDragLeave(event)">
                 {% for tarea in tareas_pendientes %}
                 <div class="kb-card priority-{{ tarea.prioridad|lower }}"
                      data-task-id="{{ tarea.id }}"
                      data-prioridad="{{ tarea.prioridad|lower }}"
                      data-prioridad-label="{{ tarea.get_prioridad_display }}"
-                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                     {% if es_admin or tarea.asignado_a == request.user %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
                     <div class="kb-card-top">
                         <span class="kb-priority-tag priority-tag-{{ tarea.prioridad|lower }}">{{ tarea.get_prioridad_display }}</span>
-                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                        {% if es_admin or tarea.asignado_a == request.user %}<span class="kb-drag-handle">⠿</span>{% endif %}
                     </div>
                     <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
                     {% if tarea.descripcion %}
@@ -61,7 +61,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                 <circle cx="12" cy="7" r="4"/>
                             </svg>
-                            {{ tarea.usuario.username }}
+                            {% if tarea.asignado_a %}{{ tarea.asignado_a.username }}{% else %}{{ tarea.usuario.username }}{% endif %}
                         </span>
                         {% if tarea.fecha_vencimiento %}
                         <span class="kb-date-pill">{{ tarea.fecha_vencimiento|date:"d/m" }}</span>
@@ -82,20 +82,20 @@
                 <span class="kb-badge-count" id="count-progreso">{{ tareas_progreso|length }}</span>
             </div>
             <div class="kb-tasks-container" id="drop-progreso"
-                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'progreso')" ondragleave="onDragLeave(event)"{% endif %}>
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'progreso')" ondragleave="onDragLeave(event)">
                 {% for tarea in tareas_progreso %}
                 <div class="kb-card priority-{{ tarea.prioridad|lower }}"
                      data-task-id="{{ tarea.id }}"
                      data-prioridad="{{ tarea.prioridad|lower }}"
                      data-prioridad-label="{{ tarea.get_prioridad_display }}"
-                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                     {% if es_admin or tarea.asignado_a == request.user %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
                     <div class="kb-card-top">
                         <span class="kb-priority-tag priority-tag-{{ tarea.prioridad|lower }}">{{ tarea.get_prioridad_display }}</span>
-                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                        {% if es_admin or tarea.asignado_a == request.user %}<span class="kb-drag-handle">⠿</span>{% endif %}
                     </div>
                     <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
                     <div class="kb-card-footer">
-                        <span class="kb-user-pill">{{ tarea.usuario.username }}</span>
+                        <span class="kb-user-pill">{% if tarea.asignado_a %}{{ tarea.asignado_a.username }}{% else %}{{ tarea.usuario.username }}{% endif %}</span>
                     </div>
                 </div>
                 {% empty %}
@@ -112,13 +112,13 @@
                 <span class="kb-badge-count" id="count-done">{{ tareas_completadas|length }}</span>
             </div>
             <div class="kb-tasks-container" id="drop-done"
-                 {% if es_admin %}ondragover="onDragOver(event)" ondrop="onDrop(event, 'done')" ondragleave="onDragLeave(event)"{% endif %}>
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'done')" ondragleave="onDragLeave(event)">
                 {% for tarea in tareas_completadas %}
                 <div class="kb-card is-completed"
                      data-task-id="{{ tarea.id }}"
                      data-prioridad="{{ tarea.prioridad|lower }}"
                      data-prioridad-label="{{ tarea.get_prioridad_display }}"
-                     {% if es_admin %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
+                     {% if es_admin or tarea.asignado_a == request.user %}draggable="true" ondragstart="onDragStart(event)"{% endif %}>
                     <div class="kb-card-top">
                         <span class="kb-done-check">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -126,11 +126,11 @@
                             </svg>
                             Finalizada
                         </span>
-                        {% if es_admin %}<span class="kb-drag-handle">⠿</span>{% endif %}
+                        {% if es_admin or tarea.asignado_a == request.user %}<span class="kb-drag-handle">⠿</span>{% endif %}
                     </div>
                     <h4 class="kb-card-title">{{ tarea.titulo }}</h4>
                     <div class="kb-card-footer">
-                        <span class="kb-user-pill">{{ tarea.usuario.username }}</span>
+                        <span class="kb-user-pill">{% if tarea.asignado_a %}{{ tarea.asignado_a.username }}{% else %}{{ tarea.usuario.username }}{% endif %}</span>
                     </div>
                 </div>
                 {% empty %}
@@ -142,7 +142,6 @@
     </div>
 </div>
 
-{% if es_admin %}
 <script>
 const CSRF_TOKEN = '{{ csrf_token }}';
 const WORKSPACE_ID = {{ workspace.id }};
@@ -162,7 +161,6 @@ function onDragOver(e) {
 }
 
 function onDragLeave(e) {
-    // Solo quita la clase si realmente salimos del contenedor (no de un hijo)
     if (!e.currentTarget.contains(e.relatedTarget)) {
         e.currentTarget.classList.remove('kb-drop-active');
     }
@@ -180,11 +178,9 @@ function onDrop(e, columna) {
     const prioridad = draggedCard.dataset.prioridad;
     const prioridadLabel = draggedCard.dataset.prioridadLabel;
 
-    // Quita el mensaje vacío si existe
     const emptyMsg = container.querySelector('.kb-empty');
     if (emptyMsg) emptyMsg.remove();
 
-    // Actualiza clases visuales de la card según columna destino
     draggedCard.classList.remove('is-completed');
     const topEl = draggedCard.querySelector('.kb-card-top');
 
@@ -198,44 +194,56 @@ function onDrop(e, columna) {
                 </svg> Finalizada</span>`;
         }
     } else {
-        // Si venía de done, restaura el tag de prioridad
         const existingCheck = topEl.querySelector('.kb-done-check');
         if (existingCheck) {
             existingCheck.outerHTML = `<span class="kb-priority-tag priority-tag-${prioridad}">${prioridadLabel}</span>`;
         }
     }
 
-    // Mueve la card al nuevo contenedor
     container.appendChild(draggedCard);
-
-    // Actualiza contadores de las 3 columnas
     actualizarContadores();
-
-    // Persiste en el servidor
     moverTarea(taskId, columna);
     draggedCard = null;
 }
 
 function moverTarea(taskId, columna) {
-    fetch(`/workspaces/${WORKSPACE_ID}/kanban/mover/`, {
+    // ESTA ES LA CORRECCIÓN CLAVE:
+    // Usamos la etiqueta de Django para que encuentre la ruta 'workspace/...' sin la 's'
+    const url = "{% url 'mover_tarea_kanban' workspace.id %}"; 
+
+    fetch(url, { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': CSRF_TOKEN,
         },
-        body: JSON.stringify({ tarea_id: taskId, columna: columna })
+        body: JSON.stringify({ 
+            tarea_id: taskId, 
+            columna: columna 
+        })
     })
-    .then(r => r.json())
+    .then(response => response.json())
     .then(data => {
-        if (!data.ok) console.error('Error al mover tarea:', data.error);
+        if (data.ok) {
+            console.log("¡Genial! Tarea guardada en la base de datos.");
+        } else {
+            console.error("Error de permisos o datos:", data.error);
+            // Si hay error, podrías recargar la página para devolver la tarea a su sitio
+            // location.reload(); 
+        }
     })
-    .catch(err => console.error('Error de red:', err));
+    .catch(error => {
+        console.error("Error de red (el servidor no respondió):", error);
+    });
 }
 
 function actualizarContadores() {
     ['todo', 'progreso', 'done'].forEach(col => {
-        const cards = document.getElementById(`drop-${col}`).querySelectorAll('.kb-card').length;
-        document.getElementById(`count-${col}`).textContent = cards;
+        const dropZone = document.getElementById(`drop-${col}`);
+        if (dropZone) {
+            const cards = dropZone.querySelectorAll('.kb-card').length;
+            document.getElementById(`count-${col}`).textContent = cards;
+        }
     });
 }
 
@@ -247,6 +255,5 @@ document.addEventListener('dragend', () => {
     document.querySelectorAll('.kb-drop-active').forEach(el => el.classList.remove('kb-drop-active'));
 });
 </script>
-{% endif %}
 
 {% endblock %}

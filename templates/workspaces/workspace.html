@@ -109,6 +109,15 @@
                     <option value="A">Alta</option>
                 </select>
                 <input type="date" name="fecha_vencimiento" class="ws-input ws-input-date">
+                <div class="ws-form-group-inline">
+                    <select name="asignado_a" class="ws-select" style="min-width: 150px;">
+                        <option value="">👤 Asignar a...</option>
+                        {% for miembro in workspace.miembros.all %}
+                            <option value="{{ miembro.id }}">{{ miembro.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
                 <button type="submit" class="ws-btn ws-btn-success">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -181,15 +190,21 @@
                                 {{ tarea.get_prioridad_display }}
                             </span>
                             <span class="ws-author">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                                {{ tarea.usuario.username }}
-                                {% if tarea.usuario == request.user %}
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            
+                            {% if tarea.asignado_a %}
+                                {{ tarea.asignado_a.username }}
+                                {% if tarea.asignado_a == request.user %}
                                     <span class="ws-self-badge">tú</span>
                                 {% endif %}
-                            </span>
+                            {% else %}
+                                {{ tarea.usuario.username }}
+                                <span class="ws-self-badge" style="background: #64748b;">creador</span>
+                            {% endif %}
+                        </span>
                             {% if tarea.fecha_vencimiento %}
                                 <span class="ws-date">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -213,7 +228,8 @@
                 <div class="ws-task-actions">
                     <!-- Botón para cambiar estado rápidamente -->
                     <button class="ws-action-icon ws-status" 
-                            onclick="cambiarEstadoKanban({{ tarea.id }}, {% if tarea.completada %}'todo'{% elif tarea.en_progreso %}'done'{% else %}'progreso'{% endif %})" 
+                            type="button"
+                            onclick="cambiarEstadoKanban('{{ tarea.id }}', '{% if tarea.completada %}todo{% elif tarea.en_progreso %}done{% else %}progreso{% endif %}')" 
                             title="Cambiar estado">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -221,7 +237,8 @@
                         </svg>
                     </button>
                     <button class="ws-action-icon ws-edit" 
-                            onclick="abrirModalEditar({{ tarea.id }}, '{{ tarea.titulo|escapejs }}', '{{ tarea.descripcion|escapejs }}', '{{ tarea.prioridad }}', '{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}')" 
+                            type="button"
+                            onclick="abrirModalEditar('{{ tarea.id }}', '{{ tarea.titulo|escapejs }}', '{{ tarea.descripcion|escapejs }}', '{{ tarea.prioridad }}', '{{ tarea.fecha_vencimiento|date:'Y-m-d'|default:'' }}')" 
                             title="Editar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -229,7 +246,7 @@
                         </svg>
                     </button>
                     <form method="POST" action="{% url 'eliminar_tarea_workspace' workspace.id tarea.id %}" 
-                          onsubmit="return confirm('¿Eliminar esta tarea?')" style="display:inline;">
+                        onsubmit="return confirm('¿Eliminar esta tarea?')" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="ws-action-icon ws-delete" title="Eliminar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -307,7 +324,7 @@
 </div>
 
 <script>
-const WORKSPACE_ID = {{ workspace.id }};
+const WORKSPACE_ID = "{{ workspace.id|default:0 }}";
 const CSRF_TOKEN = '{{ csrf_token }}';
 
 function abrirModalEditar(id, titulo, descripcion, prioridad, fecha) {
